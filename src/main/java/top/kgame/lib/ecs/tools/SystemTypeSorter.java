@@ -183,7 +183,7 @@ class SystemTypeSorter {
         }
 
         inStack[currentIndex] = false;
-        cyclePath.removeLast();
+        cyclePath.remove(cyclePath.size() - 1);
         return false;
     }
 
@@ -193,7 +193,7 @@ class SystemTypeSorter {
             errorMsg.append(graph[idx].getSystemClass().getSimpleName());
             errorMsg.append(" -> ");
         }
-        errorMsg.append(graph[cyclePath.getFirst()].getSystemClass().getSimpleName());
+        errorMsg.append(graph[cyclePath.get(0)].getSystemClass().getSimpleName());
         return errorMsg;
     }
 
