@@ -18,7 +18,6 @@ public class EcsSystemManager implements EcsCleanable {
     private final SystemScheduler topLevelSystemScheduler = new SystemScheduler();
     private final Set<Class<? extends EcsSystem>> topSystemClasses = new HashSet<>();
     private final Map<Class<? extends EcsSystemGroup>, Set<Class<? extends EcsSystem>>> groupChildMap = new HashMap<>();
-    private EcsSystem currentTopSystem;
 
     public EcsSystemManager(final EcsWorld world) {
         this.world = world;
@@ -60,18 +59,10 @@ public class EcsSystemManager implements EcsCleanable {
     @Override
     public void clean() {
         topLevelSystemScheduler.clean();
-        this.currentTopSystem = null;
     }
 
     public void update() {
-        for (EcsSystem topSystem : topLevelSystemScheduler.getSortedSystem()) {
-            this.currentTopSystem = topSystem;
-            topSystem.tryUpdate();
-        }
-    }
-
-    public EcsSystem getCurrentTopSystem() {
-        return currentTopSystem;
+        topLevelSystemScheduler.updateSystems();
     }
 
     public Set<EcsSystem> getSystemInGroup(EcsSystemGroup ecsSystemGroup) {
