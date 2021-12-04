@@ -2,12 +2,12 @@ package top.kgame.lib.ecs.core;
 
 
 import top.kgame.lib.ecs.EcsEntity;
+import top.kgame.lib.ecs.tools.EcsUtils;
 
 import java.util.*;
 
 public class EntityArchetype implements EcsCleanable {
-    public static final BitSet EMPTY_BITSET = new BitSet();
-    public static final EntityArchetype EMPTY_INSTANCE = new EMPTY(EMPTY_BITSET, Collections.emptySet());
+    public static final EntityArchetype EMPTY_INSTANCE = new EMPTY(EcsUtils.EMPTY_BITSET, Collections.emptySet());
     private final Set<Class<? extends EcsComponent>> componentMatchTypes;
     private final List<EcsEntity> entityList = new ArrayList<>();
     private final BitSet bitSet;
