@@ -4,6 +4,8 @@ import top.kgame.lib.ecs.EcsSystem;
 import top.kgame.lib.ecs.EcsSystemGroup;
 import top.kgame.lib.ecs.annotation.SystemGroup;
 import top.kgame.lib.ecs.core.EcsComponent;
+import top.kgame.lib.ecs.core.EntityFactory;
+import top.kgame.lib.ecs.exception.InvalidEcsEntityFactoryException;
 import top.kgame.lib.ecs.exception.InvalidUpdateInGroupTypeException;
 
 import java.lang.annotation.Annotation;
@@ -13,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EcsClassScanner {
     private final Set<Class<? extends EcsSystem>> topSystemClasses = new HashSet<>();
     private final Map<Class<? extends EcsSystemGroup>, Set<Class<? extends EcsSystem>>> groupChildTypeMap = new HashMap<>();
+    private Set<Class<? extends EntityFactory>> entityFactoryClass;
     private final Set<Class<? extends EcsComponent>> componentClasses = new HashSet<>();
 
     private static final Map<String, EcsClassScanner> SCANNERS = new ConcurrentHashMap<>();
@@ -23,6 +26,10 @@ public class EcsClassScanner {
             newInstance.loadComponent(packageName);
             return newInstance;
         });
+    }
+
+    public Set<Class<? extends EntityFactory>> getEntityFactoryClass() {
+        return entityFactoryClass;
     }
 
     private void loadPackage(String scanPackage) {
@@ -43,6 +50,7 @@ public class EcsClassScanner {
             }
             groupChildTypeMap.computeIfAbsent(groupClass, item -> new HashSet<>()).add(clazz);
         }
+        entityFactoryClass = getEcsEntityFactoryByAnnotation(scanPackage);
     }
 
     @SuppressWarnings("unchecked")
@@ -80,6 +88,19 @@ public class EcsClassScanner {
         return ecsSystemClass;
     }
 
+    @SuppressWarnings("unchecked")
+    private Set<Class<? extends EntityFactory>> getEcsEntityFactoryByAnnotation(String scanPackage) {
+        Set<Class<?>> classes = ClassUtils.getClassFromParent(scanPackage, EntityFactory.class);
+        Set<Class<? extends EntityFactory>> ecsSystemClass = new HashSet<>(classes.size() * 2);
+        for (Class<?> klass : classes) {
+            if (!ClassUtils.isAbstract(klass) && EntityFactory.class.isAssignableFrom(klass)) {
+                ecsSystemClass.add((Class<? extends EntityFactory>) klass);
+            } else {
+                throw new InvalidEcsEntityFactoryException("class " + klass.getName() + " is not an EntityFactory but is isAssignableFrom EntityFactory");
+            }
+        }
+        return ecsSystemClass;
+    }
 
     public Map<Class<? extends EcsSystemGroup>, Set<Class<? extends EcsSystem>>> getGroupChildTypeMap() {
         return groupChildTypeMap;
