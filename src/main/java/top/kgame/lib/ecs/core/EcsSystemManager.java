@@ -36,7 +36,7 @@ public class EcsSystemManager implements EcsCleanable {
             EcsSystem system = createSystem(systemClz);
             topLevelSystemScheduler.addSystem(system);
         }
-        topLevelSystemScheduler.getSortedSystem();
+        topLevelSystemScheduler.trySortSystem();
         logger.info("{} order: {}", this.getClass().getSimpleName(), topLevelSystemScheduler);
     }
 

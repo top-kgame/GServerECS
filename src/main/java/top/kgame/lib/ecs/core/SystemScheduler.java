@@ -14,17 +14,12 @@ public class SystemScheduler implements EcsCleanable {
     private boolean sorted = false;
     private LinkedHashSet<EcsSystem> systems = new LinkedHashSet<>();
 
-    public Collection<EcsSystem> getSortedSystem() {
-        trySortSystem();
-        return systems;
-    }
-
     public void updateSystems() {
         if (!sorted) {
             sortSystem();
         }
         for (EcsSystem system : systems) {
-            system.update();
+            system.tryUpdate();
         }
     }
 

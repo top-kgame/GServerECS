@@ -2,6 +2,8 @@ package top.kgame.lib.ecs;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import top.kgame.lib.ecs.command.EcsCommand;
+import top.kgame.lib.ecs.command.EcsCommandBuffer;
 import top.kgame.lib.ecs.core.*;
 import top.kgame.lib.ecs.tools.EcsClassScanner;
 
@@ -10,7 +12,7 @@ import java.util.Collection;
 /**
  * 非线程安全，只能在单线程使用
  */
-public class EcsWorld {
+public class EcsWorld{
     private static final Logger logger = LogManager.getLogger(EcsWorld.class);
     private static final int INIT_LOGIC_TIME = -1;
 
@@ -20,8 +22,11 @@ public class EcsWorld {
     private final EcsEntityManager entityManager = new EcsEntityManager(this);
     private EcsEntity[] waitDestroyEntity = new EcsEntity[16];
     private int waitDestroyEntitySize = 0;
+    private EcsSystemGroup currentSystemGroup;
 
     private final EcsSystemManager systemManager = new EcsSystemManager(this);
+
+    private final EcsCommandBuffer commandBuffer = new EcsCommandBuffer();;
 
     private Object context;
 
@@ -29,8 +34,20 @@ public class EcsWorld {
         return this.entityManager.findOrCreateEntityQuery(componentTypes);
     }
 
+    public void addDelayCommand(EcsCommand command) {
+        commandBuffer.addCommand(command);
+    }
+
     public int getComponentIndex(Class<? extends EcsComponent> type) {
         return entityManager.getComponentIndex(type);
+    }
+
+    public EcsSystemGroup getCurrentSystemGroup() {
+        return this.currentSystemGroup;
+    }
+
+    public void setCurrentSystemGroup(EcsSystemGroup currentSystemGroup) {
+        this.currentSystemGroup = currentSystemGroup;
     }
 
     private enum State {
@@ -127,6 +144,7 @@ public class EcsWorld {
         waitDestroyEntitySize = 0;
         systemManager.clean();
         entityManager.clean();
+        commandBuffer.clear();
         state = State.DESTROYED;
     }
 
@@ -203,6 +221,7 @@ public class EcsWorld {
             entityManager.destroyEntity(waitDestroyEntity[i]);
         }
         waitDestroyEntitySize = 0;
+        commandBuffer.execute();
         if (state == State.WAIT_DESTROY) {
             close();
         } else {

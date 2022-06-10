@@ -2,18 +2,29 @@ package top.kgame.lib.ecs;
 
 import top.kgame.lib.ecs.annotation.Standalone;
 import top.kgame.lib.ecs.annotation.TickRate;
+import top.kgame.lib.ecs.command.EcsCommand;
+import top.kgame.lib.ecs.command.EcsCommandBuffer;
+import top.kgame.lib.ecs.command.EcsCommandScope;
+import top.kgame.lib.ecs.core.ComponentFilter;
 import top.kgame.lib.ecs.core.EcsCleanable;
 import top.kgame.lib.ecs.core.EcsSystemManager;
+import top.kgame.lib.ecs.core.EntityQuery;
 import top.kgame.lib.ecs.exception.InvalidEcsSystemState;
+import top.kgame.lib.ecs.exception.UnsupportedCommandException;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public abstract class EcsSystem implements EcsCleanable {
     private EcsWorld ecsWorld;
     protected EcsSystemManager ecsSystemManager;
+    private final EcsCommandBuffer commandBuffer = new EcsCommandBuffer();
 
     private boolean standalone = false;
     private boolean hasInit = false;
     private boolean started = false;
     private boolean destroyed = false;
+    private EntityQuery entityQuery;
     private int updateInterval = 0;
     private long nextUpdateTime = Long.MIN_VALUE;
 
@@ -38,10 +49,14 @@ public abstract class EcsSystem implements EcsCleanable {
             onStart();
         }
         update();
+        commandBuffer.execute();
     }
 
     private boolean hasMatchEntity() {
-        return true;
+        if (entityQuery == null) {
+            return false;
+        }
+        return !entityQuery.isEmpty();
     }
 
     private void tryStop() {
@@ -64,6 +79,7 @@ public abstract class EcsSystem implements EcsCleanable {
             onDestroy();
             destroyed = true;
         }
+        commandBuffer.clear();
     }
 
     public void init(EcsSystemManager systemManager) {
@@ -83,8 +99,44 @@ public abstract class EcsSystem implements EcsCleanable {
         hasInit = true;
     }
 
+    protected void registerEntityFilter(ComponentFilter componentTypes) {
+        if (entityQuery == null) {
+            entityQuery = ecsWorld.findOrCreateEntityQuery(componentTypes);
+            return;
+        }
+        if (!entityQuery.matchFilter(componentTypes)) {
+            throw new UnsupportedOperationException("Repeatedly setting EntityQuery");
+        }
+    }
+
+    protected Collection<EcsEntity> getAllMatchEntity() {
+        if (entityQuery == null) {
+            return Collections.emptyList();
+        }
+        return entityQuery.getEntityList();
+    }
+
     public EcsWorld getWorld() {
         return ecsWorld;
+    }
+
+    public void addDelayCommand(EcsCommand command, EcsCommandScope level) {
+        switch (level) {
+            case SYSTEM -> this.commandBuffer.addCommand(command);
+            case SYSTEM_GROUP -> {
+                if (this instanceof EcsSystemGroup) {
+                    this.commandBuffer.addCommand(command);
+                } else {
+                    EcsSystemGroup currentSystemGroup = ecsWorld.getCurrentSystemGroup();
+                    if (currentSystemGroup != null) {
+                        currentSystemGroup.addDelayCommand(command, level);
+                    } else {
+                        throw new UnsupportedCommandException("EcsCommandScope.SYSTEM_GROUP only support the system which in EcsSystemGroups");
+                    }
+                }
+            }
+            case WORLD -> ecsWorld.addDelayCommand(command);
+        }
     }
 
     @Override
@@ -102,7 +154,7 @@ public abstract class EcsSystem implements EcsCleanable {
      */
     protected abstract void onStart();
 
-    public abstract void update();
+    protected abstract void update();
 
     /**
      * 在启动状态下：

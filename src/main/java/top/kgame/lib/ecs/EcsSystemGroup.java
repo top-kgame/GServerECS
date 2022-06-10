@@ -36,8 +36,10 @@ public abstract class EcsSystemGroup extends EcsSystem {
 
     @Override
     public void update() {
+        getWorld().setCurrentSystemGroup(this);
         systemScheduler.updateSystems();
         destroyRemovedSystem();
+        getWorld().setCurrentSystemGroup(null);
     }
 
     private void destroyRemovedSystem() {
