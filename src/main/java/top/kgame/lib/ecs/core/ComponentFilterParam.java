@@ -1,6 +1,8 @@
 package top.kgame.lib.ecs.core;
 
 
+import top.kgame.lib.ecs.EcsComponent;
+
 import java.util.Objects;
 
 public class ComponentFilterParam<T extends EcsComponent> {

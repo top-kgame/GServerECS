@@ -1,5 +1,6 @@
 package top.kgame.lib.ecs.core;
 
+import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.exception.NoDefaultConstructorException;
 import top.kgame.lib.ecs.tools.EcsClassScanner;
 import top.kgame.lib.ecs.tools.EcsUtils;

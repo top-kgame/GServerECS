@@ -1,6 +1,7 @@
 package top.kgame.lib.ecs.core;
 
 
+import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.EcsEntity;
 import top.kgame.lib.ecs.tools.EcsUtils;
 

@@ -1,4 +1,6 @@
-package top.kgame.lib.ecs.core;
+package top.kgame.lib.ecs.extensions.component;
+
+import top.kgame.lib.ecs.EcsComponent;
 
 public class DestroyingComponent implements EcsComponent {
     private DestroyingComponent(){}

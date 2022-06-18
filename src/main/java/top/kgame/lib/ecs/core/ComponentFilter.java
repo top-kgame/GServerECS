@@ -1,8 +1,11 @@
 package top.kgame.lib.ecs.core;
 
+import top.kgame.lib.ecs.EcsComponent;
+import top.kgame.lib.ecs.EcsWorld;
 import top.kgame.lib.ecs.exception.ComponentFilterConflict;
 
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -80,5 +83,20 @@ public class ComponentFilter implements EcsCleanable {
             return true;
         }
         return entityArchetype.contains(any);
+    }
+
+    public static ComponentFilter generate(EcsWorld ecsWorld, Collection<ComponentFilterParam<?>> filterParams) {
+        ComponentFilter result = new ComponentFilter();
+        for (ComponentFilterParam<?> param : filterParams) {
+            int index = ecsWorld.getComponentIndex(param.getType());
+            if (param.getFilterModeType() == ComponentFilterMode.NONE) {
+                result.addNone(index, param.getType());
+            } else if (param.getFilterModeType() == ComponentFilterMode.Subset) {
+                result.addSubset(index, param.getType());
+            } else {
+                result.addAny(index, param.getType());
+            }
+        }
+        return result;
     }
 }

@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import top.kgame.lib.ecs.command.EcsCommand;
 import top.kgame.lib.ecs.command.EcsCommandBuffer;
 import top.kgame.lib.ecs.core.*;
+import top.kgame.lib.ecs.extensions.component.DestroyingComponent;
 import top.kgame.lib.ecs.tools.EcsClassScanner;
 
 import java.util.Collection;

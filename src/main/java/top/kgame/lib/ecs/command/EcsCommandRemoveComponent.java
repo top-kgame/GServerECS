@@ -1,7 +1,7 @@
 package top.kgame.lib.ecs.command;
 
 import top.kgame.lib.ecs.EcsEntity;
-import top.kgame.lib.ecs.core.EcsComponent;
+import top.kgame.lib.ecs.EcsComponent;
 
 public class EcsCommandRemoveComponent implements EcsCommand {
     private final EcsEntity entity;

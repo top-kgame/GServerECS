@@ -3,7 +3,7 @@ package top.kgame.lib.ecs.tools;
 import top.kgame.lib.ecs.EcsSystem;
 import top.kgame.lib.ecs.EcsSystemGroup;
 import top.kgame.lib.ecs.annotation.SystemGroup;
-import top.kgame.lib.ecs.core.EcsComponent;
+import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.core.EntityFactory;
 import top.kgame.lib.ecs.exception.InvalidEcsEntityFactoryException;
 import top.kgame.lib.ecs.exception.InvalidUpdateInGroupTypeException;

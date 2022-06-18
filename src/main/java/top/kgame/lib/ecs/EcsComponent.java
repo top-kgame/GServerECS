@@ -1,4 +1,4 @@
-package top.kgame.lib.ecs.core;
+package top.kgame.lib.ecs;
 
 public interface EcsComponent {
 }

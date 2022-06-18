@@ -3,7 +3,6 @@ package top.kgame.lib.ecs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import top.kgame.lib.ecs.core.EcsCleanable;
-import top.kgame.lib.ecs.core.EcsComponent;
 import top.kgame.lib.ecs.core.EcsEntityManager;
 import top.kgame.lib.ecs.core.EntityArchetype;
 
