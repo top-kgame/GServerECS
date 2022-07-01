@@ -6,6 +6,7 @@ import top.kgame.lib.ecs.EcsSystem;
 import top.kgame.lib.ecs.tools.SystemOrderManager;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 
 public class SystemScheduler implements EcsCleanable {
@@ -70,4 +71,10 @@ public class SystemScheduler implements EcsCleanable {
                 '}';
     }
 
+    public Collection<EcsSystem> getSortedSystem() {
+        if (!sorted) {
+            sortSystem();
+        }
+        return Collections.unmodifiableCollection(systems);
+    }
 }
