@@ -93,7 +93,10 @@ public class EcsClassScanner {
         Set<Class<?>> classes = ClassUtils.getClassFromParent(scanPackage, EntityFactory.class);
         Set<Class<? extends EntityFactory>> ecsSystemClass = new HashSet<>(classes.size() * 2);
         for (Class<?> klass : classes) {
-            if (!ClassUtils.isAbstract(klass) && EntityFactory.class.isAssignableFrom(klass)) {
+            if (ClassUtils.isAbstract(klass)) {
+                continue;
+            }
+            if (EntityFactory.class.isAssignableFrom(klass)) {
                 ecsSystemClass.add((Class<? extends EntityFactory>) klass);
             } else {
                 throw new InvalidEcsEntityFactoryException("class " + klass.getName() + " is not an EntityFactory but is isAssignableFrom EntityFactory");
