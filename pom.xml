@@ -10,8 +10,9 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>ECS4J</name>
+    <name>GServerECS</name>
     <description>ECS framework developed using Java language</description>
+    <url>https://github.com/ZKGameDev/GServerECS</url>
 
     <!-- 许可证信息（必须提供） -->
     <licenses>
@@ -21,6 +22,15 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <!-- SCM信息 -->
+    <scm>
+        <!-- 只读访问URL -->
+        <connection>scm:git:https://github.com/ZKGameDev/GServerECS.git</connection>
+        <!-- 开发者提交访问URL -->
+        <developerConnection>scm:git:git@github.com:ZKGameDev/GServerECS.git</developerConnection>
+        <!-- 浏览器访问地址 -->
+        <url>https://github.com/ZKGameDev/GServerECS</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
