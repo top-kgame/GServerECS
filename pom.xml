@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- 基础信息 -->
-    <groupId>priv.kgame</groupId>
+    <groupId>top.kgame</groupId>
     <artifactId>kgame-lib-ecs</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>GServerECS</name>
@@ -22,37 +22,96 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <!-- SCM信息 -->
+    <!-- SCM信息（便于开发跟踪） -->
     <scm>
         <!-- 只读访问URL -->
         <connection>scm:git:https://github.com/ZKGameDev/GServerECS.git</connection>
-        <!-- 开发者提交访问URL -->
+        <!-- 开发者提交访问URL（需SSH权限） -->
         <developerConnection>scm:git:git@github.com:ZKGameDev/GServerECS.git</developerConnection>
         <!-- 浏览器访问地址 -->
         <url>https://github.com/ZKGameDev/GServerECS</url>
     </scm>
 
+    <!-- Java 21 专属配置 -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.release>17</maven.compiler.release>
-        <java.version>17</java.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release> <!-- 确保使用JDK21的API -->
+        <java.version>21</java.version>
+        <log4j.version>2.24.3</log4j.version>
     </properties>
 
     <!-- 依赖管理 -->
     <dependencies>
+
+        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.8.2</version>
+            <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.14.1</version>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
     </dependencies>
+
+    <!-- 构建配置 -->
+    <build>
+        <plugins>
+            <!-- 必须配置源码和Javadoc打包 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- 模块化支持（Java 9+） -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <release>21</release>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <!-- 资源过滤确保编码正确 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+      <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/ZKGameDev/GServerECS</url>
+      </repository>
+    </distributionManagement>
 
 </project>
