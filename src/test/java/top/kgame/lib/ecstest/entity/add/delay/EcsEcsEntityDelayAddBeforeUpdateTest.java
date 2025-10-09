@@ -1,4 +1,4 @@
-package top.kgame.lib.ecstest.entity.delay;
+package top.kgame.lib.ecstest.entity.add.delay;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
