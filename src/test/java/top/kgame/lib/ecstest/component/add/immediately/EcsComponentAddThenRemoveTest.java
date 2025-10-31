@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.component.add.immediately;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import top.kgame.lib.ecs.EcsEntity;
 import top.kgame.lib.ecstest.util.EcsAssertions;
@@ -14,6 +16,7 @@ import top.kgame.lib.ecstest.util.entity.EntityIndex;
  * Component立即添加测试用例 - 添加后立即移除
  */
 class EcsComponentAddThenRemoveTest extends EcsTestBase {
+    private static final Logger log = LogManager.getLogger(EcsComponentAddThenRemoveTest.class);
     private EcsEntity entity;
     @SuppressWarnings("unused")
     private Component1 componentAdd1;
@@ -47,14 +50,14 @@ class EcsComponentAddThenRemoveTest extends EcsTestBase {
         if (currentTime == addComponentTime) {
             boolean addResult = entity.addComponent(new Component3());
             assert addResult : "Component add should succeed";
-            System.out.println("Added ComponentAdd3 at time: " + currentTime);
+            log.info("Added ComponentAdd3 at time: {}", currentTime);
         }
         
         // 在下一个interval移除组件
         if (currentTime == removeComponentTime) {
             Component3 removed = (Component3) entity.removeComponent(Component3.class);
             assert removed != null : "Component should exist before removal";
-            System.out.println("Removed ComponentAdd3 at time: " + currentTime);
+            log.info("Removed ComponentAdd3 at time: {}", currentTime);
         }
     }
 

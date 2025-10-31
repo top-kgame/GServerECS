@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.component.remove.delay;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import top.kgame.lib.ecs.EcsEntity;
@@ -17,6 +19,7 @@ import top.kgame.lib.ecstest.util.entity.EntityIndex;
  * 延迟移除Component测试用例
  */
 class EcsComponentDelayRemoveTest extends EcsTestBase {
+    private static final Logger log = LogManager.getLogger(EcsComponentDelayRemoveTest.class);
     private EcsEntity entity;
     private ComponentCommandHolder componentCommandHolder;
     private Component2 componentDelayRemove2;
@@ -55,7 +58,7 @@ class EcsComponentDelayRemoveTest extends EcsTestBase {
     protected void afterUpdate(long currentTime, int interval) {
         ComponentLexicographic lexicographic = entity.getComponent(ComponentLexicographic.class);
         if (lexicographic != null) {
-            System.out.println("update result: " + lexicographic.data);
+            log.info("update result: {}", lexicographic.data);
         }
         
         // 根据不同的 scope 和当前时间进行断言
@@ -65,7 +68,7 @@ class EcsComponentDelayRemoveTest extends EcsTestBase {
             assertions.assertComponentField(entity, ComponentLexicographic.class, "data", "o1o2o3123");
         } else if (currentTime < removeComponentTime) {
             if (lexicographic != null) {
-                System.out.println("update result: " + lexicographic.data);
+                log.info("update result: {}", lexicographic.data);
             }
             // 正常更新时：只有logic阶段的123（spawn只在初始化时执行一次）
             assertions.assertComponentField(entity, ComponentLexicographic.class, "data", "123");

@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import top.kgame.lib.ecs.EcsWorld;
@@ -9,13 +11,14 @@ import top.kgame.lib.ecs.EcsWorld;
  * 提供通用的测试基础设施，包括世界初始化和更新循环
  */
 public abstract class EcsTestBase {
+    protected static final Logger log = LogManager.getLogger(EcsTestBase.class);
     protected EcsWorld ecsWorld;
     protected static final int DEFAULT_INTERVAL = 33;
     protected static final int DEFAULT_DURATION = 100; // 100个interval
     
     @BeforeEach
     protected void setUp() {
-        System.out.println("Setting up " + this.getClass().getSimpleName() + "...");
+        log.info("Setting up {}...", this.getClass().getSimpleName());
         String packageName = this.getClass().getPackage().getName();
         ecsWorld = EcsWorld.generateInstance(packageName, "top.kgame.lib.ecstest.util");
     }
@@ -48,7 +51,7 @@ public abstract class EcsTestBase {
      */
     protected final void updateWorld(long startTime, long endTime, int interval) {
         while (startTime < endTime && !ecsWorld.isClosed()) {
-            System.out.println("=====Updating world in " + startTime + "=====");
+            log.info("=====Updating world in {}=====", startTime);
             beforeUpdate(startTime, interval);  // 更新前的逻辑（抽象方法）
             ecsWorld.update(startTime);         // 更新ECS世界
             afterUpdate(startTime, interval);    // 更新后的逻辑（抽象方法）

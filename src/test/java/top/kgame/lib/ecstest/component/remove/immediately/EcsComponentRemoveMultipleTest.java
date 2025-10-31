@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.component.remove.immediately;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import top.kgame.lib.ecs.EcsEntity;
 import top.kgame.lib.ecstest.util.EcsAssertions;
@@ -13,6 +15,7 @@ import top.kgame.lib.ecstest.util.entity.EntityIndex;
  * Component立即移除测试用例 - 移除多个组件
  */
 class EcsComponentRemoveMultipleTest extends EcsTestBase {
+    private static final Logger log = LogManager.getLogger(EcsComponentRemoveMultipleTest.class);
     private EcsEntity entity;
     @SuppressWarnings("unused")
     private Component2 componentRemove2; // 保留用于向后兼容，实际使用 entity.getComponent() 获取
@@ -48,14 +51,14 @@ class EcsComponentRemoveMultipleTest extends EcsTestBase {
         // 在指定时间移除第一个组件
         if (!removeFirstComponent && currentTime == removeComponentTime) {
             entity.removeComponent(Component3.class);
-            System.out.println("remove Component3");
+            log.info("remove Component3");
             removeFirstComponent = true;
         }
         
         // 在下一个interval移除第二个组件
         if (!removeSecondComponent && currentTime == removeComponentTime + interval) {
             entity.removeComponent(Component2.class);
-            System.out.println("remove Component2");
+            log.info("remove Component2");
             removeSecondComponent = true;
         }
         
@@ -63,7 +66,7 @@ class EcsComponentRemoveMultipleTest extends EcsTestBase {
         if (currentTime >= endTime - interval * 10 && !destroy) {
             destroy = true;
             ecsWorld.requestDestroyEntity(entity);
-            System.out.println("request destroy entity");
+            log.info("request destroy entity");
         }
     }
 
@@ -72,7 +75,7 @@ class EcsComponentRemoveMultipleTest extends EcsTestBase {
         if (!destroy) {
             Component2 currentComp2 = entity.getComponent(Component2.class);
             if (currentComp2 != null) {
-                System.out.println("update result: " + currentComp2.data);
+                log.info("update result: {}", currentComp2.data);
             }
             
             if (!inited) {
@@ -80,7 +83,7 @@ class EcsComponentRemoveMultipleTest extends EcsTestBase {
                 assertions.assertComponentField(entity, ComponentLexicographic.class, "data", "o1o2o3123");
             } else if (currentTime < removeComponentTime) {
                 if (currentComp2 != null) {
-                    System.out.println("update result: " + currentComp2.data);
+                    log.info("update result: {}", currentComp2.data);
                 }
                 assertions.assertComponentField(entity, ComponentLexicographic.class, "data", "123");
             } else if (currentTime == removeComponentTime) {

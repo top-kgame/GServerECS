@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.component.remove.immediately;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import top.kgame.lib.ecs.EcsEntity;
 import top.kgame.lib.ecstest.util.EcsAssertions;
@@ -13,6 +15,7 @@ import top.kgame.lib.ecstest.util.entity.EntityIndex;
  * Component立即移除测试用例 - 移除不存在的组件
  */
 class EcsComponentRemoveNonExistentTest extends EcsTestBase {
+    private static final Logger log = LogManager.getLogger(EcsComponentRemoveNonExistentTest.class);
     private EcsEntity entity;
     private Component2 componentRemove2;
     private long endTime;
@@ -49,7 +52,7 @@ class EcsComponentRemoveNonExistentTest extends EcsTestBase {
             // 再次尝试移除同一个组件（应该返回null）
             Component3 removedAgain = (Component3) entity.removeComponent(Component3.class);
             assert removedAgain == null : "Component should be null after removal";
-            System.out.println("remove non-existent Component3 (already removed)");
+            log.info("remove non-existent Component3 (already removed)");
             removeComponent = true;
         }
         
@@ -57,20 +60,20 @@ class EcsComponentRemoveNonExistentTest extends EcsTestBase {
         if (currentTime >= endTime - interval * 10 && !destroy) {
             destroy = true;
             ecsWorld.requestDestroyEntity(entity);
-            System.out.println("request destroy entity");
+            log.info("request destroy entity");
         }
     }
 
     @Override
     protected void afterUpdate(long currentTime, int interval) {
         if (!destroy) {
-            System.out.println("update result: " + componentRemove2.data);
+            log.info("update result: {}", componentRemove2.data);
             
             if (!inited) {
                 inited = true;
                 assertions.assertComponentField(entity, ComponentLexicographic.class, "data", "o1o2o3123");
             } else if (currentTime < removeComponentTime) {
-                System.out.println("update result: " + componentRemove2.data);
+                log.info("update result: {}", componentRemove2.data);
                 assertions.assertComponentField(entity, ComponentLexicographic.class, "data", "123");
             } else if (currentTime == removeComponentTime) {
                 // 在beforeUpdate中移除，移除后立即生效

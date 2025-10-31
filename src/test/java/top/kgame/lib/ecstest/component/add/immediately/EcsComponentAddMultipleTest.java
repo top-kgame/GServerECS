@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.component.add.immediately;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import top.kgame.lib.ecs.EcsEntity;
 import top.kgame.lib.ecstest.util.EcsAssertions;
@@ -11,6 +13,7 @@ import top.kgame.lib.ecstest.util.entity.EntityIndex;
  * Component立即添加测试用例 - 多个组件连续添加
  */
 class EcsComponentAddMultipleTest extends EcsTestBase {
+    private static final Logger log = LogManager.getLogger(EcsComponentAddMultipleTest.class);
     private EcsEntity entity;
     @SuppressWarnings("unused")
     private Component1 componentAdd1;
@@ -64,7 +67,7 @@ class EcsComponentAddMultipleTest extends EcsTestBase {
             Component3 retrieved3Again = entity.getComponent(Component3.class);
             assert retrieved3Again == firstAddedComponent3 : "ComponentAdd3 should still be the same instance after adding ComponentAdd4";
             
-            System.out.println("Added ComponentAdd3 and ComponentAdd4 at time: " + currentTime);
+            log.info("Added ComponentAdd3 and ComponentAdd4 at time: {}", currentTime);
         }
     }
 

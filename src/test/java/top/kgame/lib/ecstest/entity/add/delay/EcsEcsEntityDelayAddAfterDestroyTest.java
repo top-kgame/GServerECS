@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.entity.add.delay;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -13,6 +15,7 @@ import top.kgame.lib.ecstest.util.entity.EntityIndex;
  * Entity延迟添加测试用例 - 实体销毁后延迟添加
  */
 public class EcsEcsEntityDelayAddAfterDestroyTest extends EcsTestBase {
+    private static final Logger log = LogManager.getLogger(EcsEcsEntityDelayAddAfterDestroyTest.class);
     public static class LogicContext {
         public EcsEntity entity1;
         public EcsEntity entity123; // 触发实体
@@ -87,7 +90,7 @@ public class EcsEcsEntityDelayAddAfterDestroyTest extends EcsTestBase {
             if (currentTime >= addEntityTime) {
                 // 如果系统成功添加了新实体，验证它
                 // 注意：这个测试主要验证在实体销毁后，延迟添加命令仍然可以正常工作
-                System.out.println("EcsEntity destroyed as expected, new entity add should work at time " + currentTime);
+                log.info("EcsEntity destroyed as expected, new entity add should work at time {}", currentTime);
             }
         }
     }

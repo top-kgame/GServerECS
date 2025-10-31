@@ -1,5 +1,7 @@
 package top.kgame.lib.ecstest.component.add.delay;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import top.kgame.lib.ecs.EcsEntity;
@@ -16,6 +18,7 @@ import top.kgame.lib.ecstest.util.entity.EntityIndex;
  * Component延迟添加测试用例 - 实体销毁后添加组件
  */
 class EcsComponentDelayAddAfterDestroyTest extends EcsTestBase {
+    private static final Logger log = LogManager.getLogger(EcsComponentDelayAddAfterDestroyTest.class);
     private EcsEntity entity;
     private ComponentCommandHolder commandHolder;
     private long addComponentTime;
@@ -62,7 +65,7 @@ class EcsComponentDelayAddAfterDestroyTest extends EcsTestBase {
             EcsEntity found = ecsWorld.getEntity(entity.getIndex());
             assert found == null : "EcsEntity should be destroyed after destroyTime " + destroyTime + " at time " + currentTime;
             // 尝试在已销毁的实体上添加组件应该失败或无效
-            System.out.println("EcsEntity destroyed as expected, component add should fail at time " + currentTime);
+            log.info("EcsEntity destroyed as expected, component add should fail at time {}", currentTime);
         }
     }
 }
