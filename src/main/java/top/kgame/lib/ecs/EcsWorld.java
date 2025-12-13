@@ -218,11 +218,11 @@ public class EcsWorld{
         state = State.RUNNING;
         this.currentTime = now;
         systemManager.update();
+        commandBuffer.execute();
         for (int i = 0; i < waitDestroyEntitySize; i++) {
             entityManager.destroyEntity(waitDestroyEntity[i]);
         }
         waitDestroyEntitySize = 0;
-        commandBuffer.execute();
         if (state == State.WAIT_DESTROY) {
             close();
         } else {
