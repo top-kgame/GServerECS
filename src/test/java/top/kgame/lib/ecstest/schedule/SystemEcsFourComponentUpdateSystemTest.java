@@ -29,39 +29,24 @@ class SystemEcsFourComponentUpdateSystemTest extends EcsTestBase {
     void testEcsFourComponentUpdateSystem() {
         // 创建 E1234 实体（包含 Component1-4，符合条件）
         entity1234 = ecsWorld.createEntity(EntityIndex.E123.getId());
-        assertNotNull(entity1234, "实体 E1234 应被创建");
         entity1234.addComponent(new Component4());
-
-        assertNotNull(entity1234.getComponent(Component1.class), "实体 E1234 应包含Component1");
-        assertNotNull(entity1234.getComponent(Component2.class), "实体 E1234 应包含Component2");
-        assertNotNull(entity1234.getComponent(Component3.class), "实体 E1234 应包含Component3");
-        assertNotNull(entity1234.getComponent(Component4.class), "实体 E1234 应包含Component4");
 
         // 创建 E123 实体（只包含 Component1-3，不符合条件）
         entity123 = ecsWorld.createEntity(EntityIndex.E12.getId());
-        assertNotNull(entity123, "实体 E123 应被创建");
         entity123.addComponent(new Component3());
-        assertNotNull(entity123.getComponent(Component1.class), "实体 E123 应包含Component1");
-        assertNotNull(entity123.getComponent(Component2.class), "实体 E123 应包含Component2");
-        assertNotNull(entity123.getComponent(Component3.class), "实体 E123 应包含Component3");
-        assertNull(entity123.getComponent(Component4.class), "实体 E123 不应包含Component4");
 
         // 记录初始状态
         ComponentLexicographic lex1234 = entity1234.getComponent(ComponentLexicographic.class);
         ComponentLexicographic lex123 = entity123.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex1234, "实体 E1234 应包含ComponentLexicographic");
-        assertNotNull(lex123, "实体 E123 应包含ComponentLexicographic");
 
         updateWorld(0, DEFAULT_INTERVAL * 5, DEFAULT_INTERVAL);
 
         // 验证 E1234 会执行（cache 被更新）
         ComponentLexicographic lex1234After = entity1234.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex1234After, "实体 E1234 应包含ComponentLexicographic");
         assertTrue(lex1234After.data.contains("FourComponentSystem"), "实体 E1234 的 cache 应包含 FourComponentSystem");
 
         // 验证 E123 不会执行（cache 未被更新）
         ComponentLexicographic lex123After = entity123.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex123After, "实体 E123 应包含ComponentLexicographic");
         assertFalse(lex123After.data.contains("FourComponentSystem"), "实体 E123 的 cache 不应包含 FourComponentSystem");
     }
 

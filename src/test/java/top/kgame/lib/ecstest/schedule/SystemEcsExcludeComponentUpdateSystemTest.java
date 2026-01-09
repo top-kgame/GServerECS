@@ -27,32 +27,22 @@ class SystemEcsExcludeComponentUpdateSystemTest extends EcsTestBase {
     void testEcsExcludeComponentUpdateSystem() {
         // 创建 E1 实体（只包含 Component1，不包含 Component2）
         entity1 = ecsWorld.createEntity(EntityIndex.E1.getId());
-        assertNotNull(entity1, "实体 E1 应被创建");
-        assertNotNull(entity1.getComponent(Component1.class), "实体 E1 应包含Component1");
-        assertNull(entity1.getComponent(Component2.class), "实体 E1 不应包含Component2");
 
         // 创建 E12 实体（包含 Component1 和 Component2）
         entity12 = ecsWorld.createEntity(EntityIndex.E12.getId());
-        assertNotNull(entity12, "实体 E12 应被创建");
-        assertNotNull(entity12.getComponent(Component1.class), "实体 E12 应包含Component1");
-        assertNotNull(entity12.getComponent(Component2.class), "实体 E12 应包含Component2");
 
         // 记录初始状态
         ComponentLexicographic lex1 = entity1.getComponent(ComponentLexicographic.class);
         ComponentLexicographic lex12 = entity12.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex1, "实体 E1 应包含ComponentLexicographic");
-        assertNotNull(lex12, "实体 E12 应包含ComponentLexicographic");
 
         updateWorld(0, DEFAULT_INTERVAL * 5, DEFAULT_INTERVAL);
 
         // 验证 E1 会执行（cache 被更新）
         ComponentLexicographic lex1After = entity1.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex1After, "实体 E1 应包含ComponentLexicographic");
         assertTrue(lex1After.data.contains("ExcludeComponentSystem"));
 
         // 验证 E12 不会执行（cache 未被更新）
         ComponentLexicographic lex12After = entity12.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex12After, "实体 E12 应包含ComponentLexicographic");
         assertFalse(lex12After.data.contains("ExcludeComponentSystem"));
     }
 

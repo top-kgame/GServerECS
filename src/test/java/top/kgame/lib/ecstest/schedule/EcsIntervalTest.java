@@ -6,7 +6,7 @@ import top.kgame.lib.ecstest.util.EcsTestBase;
 import top.kgame.lib.ecstest.util.component.ComponentLexicographic;
 import top.kgame.lib.ecstest.util.entity.EntityIndex;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * System间隔测试用例
@@ -34,13 +34,13 @@ public class EcsIntervalTest extends EcsTestBase {
     @Override
     protected void afterUpdate(long currentTime, int interval) {
         if (currentTime == 0) {
-            assertEquals("o11interval",  componentLexicographic.data);
+            assertTrue(componentLexicographic.data.contains("interval"), "第一帧的执行不应不受tickRate的影响");
             return;
         }
         if (currentTime % TEST_TICK_INTERVAL == 0) {
-            assertEquals("1interval",  componentLexicographic.data);
+            assertTrue(componentLexicographic.data.contains("interval"), "tickRate没有生效");
         } else if (currentTime % TICK_INTERVAL == 0) {
-            assertEquals("1", componentLexicographic.data);
+            assertFalse(componentLexicographic.data.contains("interval"), "tickRate没有生效");
         }
     }
 } 

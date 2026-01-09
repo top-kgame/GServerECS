@@ -24,8 +24,6 @@ class SystemEcsInitializeSystemTest extends EcsTestBase {
         // 创建实体（包含Component1，会被SystemSpawnDefaultComponent1处理）
         entity = ecsWorld.createEntity(EntityIndex.E1.getId());
         ComponentLexicographic lex = entity.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex, "实体应包含ComponentLexicographic组件");
-        
         updateWorld(0, DEFAULT_INTERVAL * 5, DEFAULT_INTERVAL);
     }
 

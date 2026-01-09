@@ -83,7 +83,7 @@ public class MovementSystem extends EcsOneComponentUpdateSystem<PositionComponen
 ### 4. 创建实体工厂
 
 ```java
-// EntityFactory实现类会被自动扫描和注册，无需注解
+// EntityFactory实现类会被自动扫描和注册
 // 只需实现EntityFactory接口或继承BaseEntityFactory即可
 public class PlayerFactory extends BaseEntityFactory {
 

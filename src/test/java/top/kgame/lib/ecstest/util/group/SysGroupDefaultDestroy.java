@@ -1,10 +1,9 @@
 package top.kgame.lib.ecstest.util.group;
 
 import top.kgame.lib.ecs.EcsSystemGroup;
-import top.kgame.lib.ecs.annotation.Before;
 
-@Before(value = { SysGroupDefaultDestroy.class })
-public class SysGroupDefaultSpawn extends EcsSystemGroup {
+
+public class SysGroupDefaultDestroy extends EcsSystemGroup {
     @Override
     protected void onStart() {
 
