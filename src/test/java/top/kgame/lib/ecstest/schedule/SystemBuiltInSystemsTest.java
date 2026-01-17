@@ -23,7 +23,7 @@ class SystemBuiltInSystemsTest extends EcsTestBase {
         assertions = new EcsAssertions(ecsWorld);
         entity = ecsWorld.createEntity(EntityIndex.E1.getId());
         ComponentLexicographic lex = entity.getComponent(ComponentLexicographic.class);
-        assertNotNull(lex, "实体应包含ComponentLexicographic组件");
+        assertNotNull(lex, "Entity should contain ComponentLexicographic component");
         
         updateWorld(0, DEFAULT_INTERVAL * 5, DEFAULT_INTERVAL);
     }
@@ -38,7 +38,7 @@ class SystemBuiltInSystemsTest extends EcsTestBase {
             ComponentLexicographic lex = entity.getComponent(ComponentLexicographic.class);
             if (lex != null) {
                 // 验证系统已执行（cache被更新）
-                assertNotEquals(lex.data, "","系统应已更新ComponentLexicographic");
+                assertNotEquals(lex.data, "","System should have updated ComponentLexicographic");
             }
         }
     }

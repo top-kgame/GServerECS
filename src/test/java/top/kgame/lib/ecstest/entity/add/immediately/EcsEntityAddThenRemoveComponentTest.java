@@ -52,7 +52,7 @@ public class EcsEntityAddThenRemoveComponentTest extends EcsTestBase {
         // 验证组件已移除
         if (currentTime >= removeComponentTime && entity != null) {
             Component1 comp1 = entity.getComponent(Component1.class);
-            assertNull(comp1, "实体不应包含Component1");
+            assertNull(comp1, "Entity should not contain Component1");
         }
     }
 }

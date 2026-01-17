@@ -43,8 +43,8 @@ public class EcsEntityAddWithComponentVerificationTest extends EcsTestBase {
             assertions.assertEntityExists(entity, currentTime);
             Component1 comp1 = entity.getComponent(Component1.class);
             Component2 comp2 = entity.getComponent(Component2.class);
-            assertNotNull(comp1, "实体应包含Component1");
-            assertNotNull(comp2, "实体应包含Component2");
+            assertNotNull(comp1, "Entity should contain Component1");
+            assertNotNull(comp2, "Entity should contain Component2");
         }
     }
 }

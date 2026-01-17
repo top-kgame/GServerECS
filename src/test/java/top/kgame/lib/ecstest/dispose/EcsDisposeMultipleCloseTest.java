@@ -21,8 +21,8 @@ class EcsDisposeMultipleCloseTest extends EcsTestBase {
         updateWorld(0, endTime, tickInterval);
         
         // 断言：多次调用 close() 应该安全，不会抛出异常
-        assert closeCallCount >= 1 : "close() 应该至少被调用一次";
-        assert ecsWorld.isClosed() : "World 应该已关闭";
+        assert closeCallCount >= 1 : "close() should be called at least once";
+        assert ecsWorld.isClosed() : "World should be closed";
     }
 
     @Test
@@ -36,8 +36,8 @@ class EcsDisposeMultipleCloseTest extends EcsTestBase {
         updateWorld(0, endTime, tickInterval);
         
         // 断言：多次调用 close() 应该安全
-        assert closeCallCount >= 1 : "close() 应该至少被调用一次";
-        assert ecsWorld.isClosed() : "World 应该已关闭";
+        assert closeCallCount >= 1 : "close() should be called at least once";
+        assert ecsWorld.isClosed() : "World should be closed";
     }
 
     @Test
@@ -47,7 +47,7 @@ class EcsDisposeMultipleCloseTest extends EcsTestBase {
         
         // 先关闭一次
         ecsWorld.close();
-        assert ecsWorld.isClosed() : "World 应该已关闭";
+        assert ecsWorld.isClosed() : "World should be closed";
         
         // 再次调用 close() 多次
         ecsWorld.close();
@@ -55,7 +55,7 @@ class EcsDisposeMultipleCloseTest extends EcsTestBase {
         ecsWorld.close();
         
         // 断言：应该仍然处于关闭状态，不会出错
-        assert ecsWorld.isClosed() : "World 应该仍然处于关闭状态";
+        assert ecsWorld.isClosed() : "World should still be in closed state";
     }
 
     @Override

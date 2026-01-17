@@ -51,19 +51,19 @@ public class EcsEntityAddWithDifferentTypesTest extends EcsTestBase {
             assertions.assertEntityExists(entity123, currentTime);
             
             // 验证entity1只包含Component1
-            assertNotNull(entity1.getComponent(Component1.class), "entity1应包含Component1");
-            assertNull(entity1.getComponent(Component2.class), "entity1不应包含Component2");
-            assertNull(entity1.getComponent(Component3.class), "entity1不应包含Component3");
+            assertNotNull(entity1.getComponent(Component1.class), "entity1 should contain Component1");
+            assertNull(entity1.getComponent(Component2.class), "entity1 should not contain Component2");
+            assertNull(entity1.getComponent(Component3.class), "entity1 should not contain Component3");
             
             // 验证entity12包含Component1和Component2
-            assertNotNull(entity12.getComponent(Component1.class), "entity12应包含Component1");
-            assertNotNull(entity12.getComponent(Component2.class), "entity12应包含Component2");
-            assertNull(entity12.getComponent(Component3.class), "entity12不应包含Component3");
+            assertNotNull(entity12.getComponent(Component1.class), "entity12 should contain Component1");
+            assertNotNull(entity12.getComponent(Component2.class), "entity12 should contain Component2");
+            assertNull(entity12.getComponent(Component3.class), "entity12 should not contain Component3");
             
             // 验证entity123包含所有组件
-            assertNotNull(entity123.getComponent(Component1.class), "entity123应包含Component1");
-            assertNotNull(entity123.getComponent(Component2.class), "entity123应包含Component2");
-            assertNotNull(entity123.getComponent(Component3.class), "entity123应包含Component3");
+            assertNotNull(entity123.getComponent(Component1.class), "entity123 should contain Component1");
+            assertNotNull(entity123.getComponent(Component2.class), "entity123 should contain Component2");
+            assertNotNull(entity123.getComponent(Component3.class), "entity123 should contain Component3");
         }
     }
 }

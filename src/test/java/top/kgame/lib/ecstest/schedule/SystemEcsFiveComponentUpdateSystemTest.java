@@ -45,11 +45,11 @@ class SystemEcsFiveComponentUpdateSystemTest extends EcsTestBase {
 
         // 验证 E12345 会执行（cache 被更新）
         ComponentLexicographic lex12345After = entity12345.getComponent(ComponentLexicographic.class);
-        assertTrue(lex12345After.data.contains("FiveComponentSystem"), "实体 E12345 的 cache 应包含 FiveComponentSystem");
+        assertTrue(lex12345After.data.contains("FiveComponentSystem"), "Entity E12345's cache should contain FiveComponentSystem");
 
         // 验证 E123 不会执行（cache 未被更新）
         ComponentLexicographic lex123After = entity123.getComponent(ComponentLexicographic.class);
-        assertFalse(lex123After.data.contains("FiveComponentSystem"), "实体 E123 的 cache 不应包含 FiveComponentSystem");
+        assertFalse(lex123After.data.contains("FiveComponentSystem"), "Entity E123's cache should not contain FiveComponentSystem");
     }
 
     @Override

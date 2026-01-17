@@ -30,8 +30,8 @@ class SystemEcsStandaloneUpdateSystemTest extends EcsTestBase {
         updateWorld(0, DEFAULT_INTERVAL * 5, DEFAULT_INTERVAL);
         
         // 验证Standalone系统执行了（通过标记）
-        assertFalse(standaloneSystemMarker.isEmpty(), "Standalone系统应已执行");
-        assertTrue(standaloneSystemMarker.contains("StandaloneSystem"), "Standalone系统标记应存在");
+        assertFalse(standaloneSystemMarker.isEmpty(), "Standalone system should have been executed");
+        assertTrue(standaloneSystemMarker.contains("StandaloneSystem"), "Standalone system marker should exist");
 
     }
 
@@ -42,8 +42,8 @@ class SystemEcsStandaloneUpdateSystemTest extends EcsTestBase {
     @Override
     protected void afterUpdate(long currentTime, int interval) {
         // 验证ECS世界正常运行
-        assertNotNull(ecsWorld, "ECS世界应存在");
-        assertFalse(ecsWorld.isClosed(), "ECS世界不应被关闭");
+        assertNotNull(ecsWorld, "ECS world should exist");
+        assertFalse(ecsWorld.isClosed(), "ECS world should not be closed");
     }
 
     /**

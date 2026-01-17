@@ -83,7 +83,7 @@ public class SystemSortPerformanceTest {
         log.info("少量系统排序性能测试 ({}个系统, {}次迭代): 平均耗时 {} ms", 
                 systemCount, iterations, avgTimeMs);
         
-        assertTrue(avgTimeMs < 1.0, "排序耗时应该小于1ms");
+        assertTrue(avgTimeMs < 1.0, "Sort time should be less than 1ms");
     }
 
     /**
@@ -124,7 +124,7 @@ public class SystemSortPerformanceTest {
         log.info("中等数量系统排序性能测试 ({}个系统, {}次迭代): 平均耗时 {} ms", 
                 systemCount, iterations, avgTimeMs);
         
-        assertTrue(avgTimeMs < 5.0, "排序耗时应该小于5ms");
+        assertTrue(avgTimeMs < 5.0, "Sort time should be less than 5ms");
     }
 
     /**
@@ -165,7 +165,7 @@ public class SystemSortPerformanceTest {
         log.info("大量系统排序性能测试 ({}个系统, {}次迭代): 平均耗时 {} ms", 
                 systemCount, iterations, avgTimeMs);
         
-        assertTrue(avgTimeMs < 20.0, "排序耗时应该小于20ms");
+        assertTrue(avgTimeMs < 20.0, "Sort time should be less than 20ms");
     }
 
     /**
@@ -209,7 +209,7 @@ public class SystemSortPerformanceTest {
         log.info("有依赖关系的系统排序性能测试 ({}个系统, {}次迭代): 平均耗时 {} ms", 
                 systems.size(), iterations, avgTimeMs);
         
-        assertTrue(avgTimeMs < 1.0, "排序耗时应该小于1ms");
+        assertTrue(avgTimeMs < 1.0, "Sort time should be less than 1ms");
     }
 
     /**
@@ -251,6 +251,6 @@ public class SystemSortPerformanceTest {
         log.info("缓存效果测试: 首次排序耗时 {} ms, 缓存后平均耗时 {} ms (提升 {}倍)", 
                 firstTimeMs, avgCachedTimeMs, firstTimeMs / avgCachedTimeMs);
         
-        assertTrue(avgCachedTimeMs < firstTimeMs, "缓存应该提升性能");
+        assertTrue(avgCachedTimeMs < firstTimeMs, "Cache should improve performance");
     }
 }

@@ -36,7 +36,7 @@ public class EcsEntityRemoveWithSystemExecutionTest extends EcsTestBase {
         if (currentTime == removeEntityTime) {
             // 在移除前验证系统已执行（ComponentLexicographic应该被更新）
             ComponentLexicographic lex = entity.getComponent(ComponentLexicographic.class);
-            assertNotNull(lex, "实体应包含ComponentLexicographic");
+            assertNotNull(lex, "Entity should contain ComponentLexicographic");
             
             ecsWorld.requestDestroyEntity(entity);
         }
@@ -48,7 +48,7 @@ public class EcsEntityRemoveWithSystemExecutionTest extends EcsTestBase {
         if (currentTime < removeEntityTime) {
             assertions.assertEntityExists(entity, currentTime);
             ComponentLexicographic lex = entity.getComponent(ComponentLexicographic.class);
-            assertNotNull(lex, "实体应包含ComponentLexicographic");
+            assertNotNull(lex, "Entity should contain ComponentLexicographic");
         }
         if (currentTime >= removeEntityTime) {
             assertions.assertEntityNotExists(entity, currentTime);

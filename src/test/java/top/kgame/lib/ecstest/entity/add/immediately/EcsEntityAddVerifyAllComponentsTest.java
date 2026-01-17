@@ -50,10 +50,10 @@ public class EcsEntityAddVerifyAllComponentsTest extends EcsTestBase {
             Component3 comp3 = entity.getComponent(Component3.class);
             ComponentLexicographic lex = entity.getComponent(ComponentLexicographic.class);
             
-            assertNotNull(comp1, "实体应包含Component1");
-            assertNotNull(comp2, "实体应包含Component2");
-            assertNotNull(comp3, "实体应包含Component3");
-            assertNotNull(lex, "实体应包含ComponentLexicographic");
+            assertNotNull(comp1, "Entity should contain Component1");
+            assertNotNull(comp2, "Entity should contain Component2");
+            assertNotNull(comp3, "Entity should contain Component3");
+            assertNotNull(lex, "Entity should contain ComponentLexicographic");
         }
     }
 }

@@ -28,7 +28,7 @@ class SystemEcsDestroySystemTest extends EcsTestBase {
         
         // 创建实体
         entity = ecsWorld.createEntity(EntityIndex.E1.getId());
-        assertNotNull(entity, "实体应被创建");
+        assertNotNull(entity, "Entity should be created");
         
         destroyTime = DEFAULT_INTERVAL * 5;
         
@@ -48,10 +48,10 @@ class SystemEcsDestroySystemTest extends EcsTestBase {
         AtomicBoolean destroyedFlag = ecsWorld.getContext();
         if (currentTime < destroyTime) {
             // 销毁前：实体应存在
-            assertFalse(destroyedFlag.get(), "销毁前context不应被标记");
+            assertFalse(destroyedFlag.get(), "Context should not be marked before destruction");
         } else {
             // 销毁时刻及之后：在afterUpdate时entity已经被销毁；通过context校验销毁系统已执行
-            assertTrue(destroyedFlag.get(), "销毁后context应被销毁系统标记");
+            assertTrue(destroyedFlag.get(), "Context should be marked by destroy system after destruction");
         }
     }
 }

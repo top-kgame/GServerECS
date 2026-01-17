@@ -33,12 +33,12 @@ class EcsDisposeAfterCloseStateTest extends EcsTestBase {
         ecsWorld.update(2000);
         
         // 验证更新前实体存在
-        assert ecsWorld.getEntity(index1) != null : "实体1应该存在";
-        assert ecsWorld.getEntity(index2) != null : "实体2应该存在";
-        assert ecsWorld.getEntity(index3) != null : "实体3应该存在";
+        assert ecsWorld.getEntity(index1) != null : "Entity 1 should exist";
+        assert ecsWorld.getEntity(index2) != null : "Entity 2 should exist";
+        assert ecsWorld.getEntity(index3) != null : "Entity 3 should exist";
         
         Collection<EcsEntity> allEntitiesBefore = ecsWorld.getAllEntity();
-        assert allEntitiesBefore.size() >= 3 : "关闭前应该至少有3个实体";
+        assert allEntitiesBefore.size() >= 3 : "Should have at least 3 entities before close";
         
         // 关闭世界
         ecsWorld.close();
@@ -62,14 +62,14 @@ class EcsDisposeAfterCloseStateTest extends EcsTestBase {
         updateWorld(0, endTime, tickInterval);
         
         // 验证关闭状态
-        assert ecsWorld.isClosed() : "World 应该已关闭";
+        assert ecsWorld.isClosed() : "World should be closed";
         verifyEntityCleaned(index1);
         verifyEntityCleaned(index2);
     }
 
     private void verifyClosedState(int index1, int index2, int index3) {
         // 验证 isClosed() 返回 true
-        assert ecsWorld.isClosed() : "isClosed() 应该返回 true";
+        assert ecsWorld.isClosed() : "isClosed() should return true";
         
         // 验证所有实体都被清理
         verifyEntityCleaned(index1);
@@ -78,17 +78,17 @@ class EcsDisposeAfterCloseStateTest extends EcsTestBase {
         
         // 验证 getAllEntity() 返回空集合
         Collection<EcsEntity> allEntitiesAfter = ecsWorld.getAllEntity();
-        assert allEntitiesAfter != null : "getAllEntity() 不应该返回 null";
-        assert allEntitiesAfter.isEmpty() : "关闭后 getAllEntity() 应该返回空集合，但发现 " + allEntitiesAfter.size() + " 个实体";
+        assert allEntitiesAfter != null : "getAllEntity() should not return null";
+        assert allEntitiesAfter.isEmpty() : "getAllEntity() should return empty collection after close, but found " + allEntitiesAfter.size() + " entities";
         
         // 验证 currentTime 被重置
         long currentTime = ecsWorld.getCurrentTime();
-        assert currentTime == -1 : "关闭后 currentTime 应该被重置为 -1，但实际为 " + currentTime;
+        assert currentTime == -1 : "currentTime should be reset to -1 after close, but actual is " + currentTime;
     }
 
     private void verifyEntityCleaned(int entityIndex) {
         EcsEntity found = ecsWorld.getEntity(entityIndex);
-        assert found == null : "实体 " + entityIndex + " 应该已被清理，但仍然存在";
+        assert found == null : "Entity " + entityIndex + " should have been cleaned, but still exists";
     }
 
     @Override

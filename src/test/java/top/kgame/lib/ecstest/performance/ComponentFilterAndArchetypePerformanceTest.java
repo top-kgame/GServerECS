@@ -84,7 +84,7 @@ public class ComponentFilterAndArchetypePerformanceTest {
         log.info("ComponentFilter生成性能测试 ({}次迭代): 平均耗时 {} ms ({} ns)", 
                 iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 1000, "生成耗时应该小于1000ns");
+        assertTrue(avgTimeNs < 1000, "Generation time should be less than 1000ns");
     }
 
     /**
@@ -119,7 +119,7 @@ public class ComponentFilterAndArchetypePerformanceTest {
         log.info("单个Archetype匹配性能测试 ({}次迭代): 平均耗时 {} ms ({} ns)", 
                 iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 100, "匹配耗时应该小于100ns");
+        assertTrue(avgTimeNs < 100, "Matching time should be less than 100ns");
     }
 
     /**
@@ -158,7 +158,7 @@ public class ComponentFilterAndArchetypePerformanceTest {
         log.info("多个Archetype匹配性能测试 ({}个Archetype, {}次迭代): 总耗时 {} ms, 平均每次 {} ms, 每个Archetype {} ms", 
                 archetypeCount, iterations, totalTimeMs, avgTimeMs, avgTimePerArchetypeMs);
         
-        assertTrue(avgTimePerArchetypeMs < 0.001, "每个Archetype匹配耗时应该小于0.001ms");
+        assertTrue(avgTimePerArchetypeMs < 0.001, "Matching time per Archetype should be less than 0.001ms");
     }
 
     /**
@@ -197,7 +197,7 @@ public class ComponentFilterAndArchetypePerformanceTest {
         log.info("复杂Filter匹配性能测试 ({}个Archetype, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
                 archetypes.size(), iterations, totalTimeMs, avgTimeMs);
         
-        assertTrue(avgTimeMs < 0.01, "复杂匹配耗时应该小于0.01ms");
+        assertTrue(avgTimeMs < 0.01, "Complex matching time should be less than 0.01ms");
     }
 
     /**
@@ -266,6 +266,6 @@ public class ComponentFilterAndArchetypePerformanceTest {
         log.info("大量Archetype匹配性能测试 ({}个Archetype, {}次迭代): 总耗时 {} ms, 平均每次 {} ms, 每个Archetype {} ms", 
                 largeArchetypeCount, iterations, totalTimeMs, avgTimeMs, avgTimePerArchetypeMs);
         
-        assertTrue(avgTimePerArchetypeMs < 0.001, "每个Archetype匹配耗时应该小于0.001ms");
+        assertTrue(avgTimePerArchetypeMs < 0.001, "Matching time per Archetype should be less than 0.001ms");
     }
 }

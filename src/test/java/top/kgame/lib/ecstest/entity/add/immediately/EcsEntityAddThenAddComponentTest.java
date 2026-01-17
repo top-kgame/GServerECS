@@ -52,7 +52,7 @@ public class EcsEntityAddThenAddComponentTest extends EcsTestBase {
         // 验证组件已添加
         if (currentTime >= addComponentTime && entity != null) {
             Component3 comp3 = entity.getComponent(Component3.class);
-            assertNotNull(comp3, "实体应包含Component3");
+            assertNotNull(comp3, "Entity should contain Component3");
         }
     }
 }

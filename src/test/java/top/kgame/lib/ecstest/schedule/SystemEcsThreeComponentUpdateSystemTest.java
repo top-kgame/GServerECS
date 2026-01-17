@@ -39,11 +39,11 @@ class SystemEcsThreeComponentUpdateSystemTest extends EcsTestBase {
 
         // 验证 E123 会执行（data 被更新）
         ComponentLexicographic lex123After = entity123.getComponent(ComponentLexicographic.class);
-        assertTrue(lex123After.data.contains("ThreeComponentSystem"), "实体 E123 的 cache 应包含 ThreeComponentSystem");
+        assertTrue(lex123After.data.contains("ThreeComponentSystem"), "Entity E123's cache should contain ThreeComponentSystem");
 
         // 验证 E12 不会执行（data 未被更新）
         ComponentLexicographic lex12After = entity12.getComponent(ComponentLexicographic.class);
-        assertFalse(lex12After.data.contains("ThreeComponentSystem"), "实体 E12 的 cache 不应包含 ThreeComponentSystem");
+        assertFalse(lex12After.data.contains("ThreeComponentSystem"), "Entity E12's cache should not contain ThreeComponentSystem");
     }
 
     @Override

@@ -44,10 +44,10 @@ public class EcsEntityAddWithSystemExecutionTest extends EcsTestBase {
             
             // 验证系统已执行（ComponentLexicographic的cache应该被更新）
             ComponentLexicographic lex = entity.getComponent(ComponentLexicographic.class);
-            assertNotNull(lex, "实体应包含ComponentLexicographic");
+            assertNotNull(lex, "Entity should contain ComponentLexicographic");
             // 系统会在更新时修改cache，所以应该与初始值不同
             if (currentTime > addEntityTime) {
-                assertNotNull(lex.cache, "系统应已更新ComponentLexicographic");
+                assertNotNull(lex.cache, "System should have updated ComponentLexicographic");
             }
         }
     }

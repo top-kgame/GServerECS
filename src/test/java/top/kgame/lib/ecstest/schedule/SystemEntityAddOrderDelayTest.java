@@ -46,7 +46,7 @@ class SystemEntityAddOrderDelayTest extends EcsTestBase {
     @Override
     protected void afterUpdate(long currentTime, int interval) {
         assertTrue(componentLexicographic.data.contains("ACBDE"),
-                "system的执行顺序不应该受EcsCommandCreateEntity影响");
+                "System execution order should not be affected by EcsCommandCreateEntity");
     }
 }
 

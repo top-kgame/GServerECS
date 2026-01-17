@@ -29,7 +29,7 @@ class EcsDisposeClosedOperationsTest extends EcsTestBase {
         
         // 关闭世界
         ecsWorld.close();
-        assert ecsWorld.isClosed() : "World 应该已关闭";
+        assert ecsWorld.isClosed() : "World should be closed";
         
         // 测试在已关闭状态下调用各种操作
         testUpdateAfterClose();
@@ -39,11 +39,11 @@ class EcsDisposeClosedOperationsTest extends EcsTestBase {
         testRequestDestroyEntityAfterClose(entityIndex);
         
         // 断言：所有操作都应该安全处理，不会抛出异常
-        assert updateCalled : "update() 应该被调用";
-        assert createEntityCalled : "createEntity() 应该被调用";
-        assert getEntityCalled : "getEntity() 应该被调用";
-        assert getAllEntityCalled : "getAllEntity() 应该被调用";
-        assert requestDestroyEntityCalled : "requestDestroyEntity() 应该被调用";
+        assert updateCalled : "update() should be called";
+        assert createEntityCalled : "createEntity() should be called";
+        assert getEntityCalled : "getEntity() should be called";
+        assert getAllEntityCalled : "getAllEntity() should be called";
+        assert requestDestroyEntityCalled : "requestDestroyEntity() should be called";
     }
 
     private void testUpdateAfterClose() {
@@ -63,7 +63,7 @@ class EcsDisposeClosedOperationsTest extends EcsTestBase {
             EcsEntity newEntity = ecsWorld.createEntity(2);
             createEntityCalled = true;
             // 如果创建成功，应该为 null 或抛出异常
-            assert newEntity == null : "在已关闭状态下创建实体应该失败";
+            assert newEntity == null : "Creating entity in closed state should fail";
         } catch (Exception e) {
             // 可能抛出异常，这是可以接受的
             createEntityCalled = true;
@@ -76,7 +76,7 @@ class EcsDisposeClosedOperationsTest extends EcsTestBase {
             EcsEntity found = ecsWorld.getEntity(entityIndex);
             getEntityCalled = true;
             // 应该返回 null，因为实体已被清理
-            assert found == null : "在已关闭状态下获取实体应该返回 null";
+            assert found == null : "Getting entity in closed state should return null";
         } catch (Exception e) {
             getEntityCalled = true;
         }
@@ -88,8 +88,8 @@ class EcsDisposeClosedOperationsTest extends EcsTestBase {
             Collection<EcsEntity> allEntities = ecsWorld.getAllEntity();
             getAllEntityCalled = true;
             // 应该返回空集合
-            assert allEntities != null : "getAllEntity() 应该返回非 null";
-            assert allEntities.isEmpty() : "在已关闭状态下获取所有实体应该返回空集合";
+            assert allEntities != null : "getAllEntity() should return non-null";
+            assert allEntities.isEmpty() : "Getting all entities in closed state should return empty collection";
         } catch (Exception e) {
             getAllEntityCalled = true;
         }

@@ -100,22 +100,22 @@ class EcsDisposeMultipleEntitiesTest extends EcsTestBase {
         }
         
         // 验证所有实体都已创建
-        assert entities.size() == ENTITY_COUNT : "应该创建 " + ENTITY_COUNT + " 个实体";
+        assert entities.size() == ENTITY_COUNT : "Should create " + ENTITY_COUNT + " entities";
         Collection<EcsEntity> allEntities = ecsWorld.getAllEntity();
-        assert allEntities.size() >= ENTITY_COUNT : "World 中应该至少有 " + ENTITY_COUNT + " 个实体";
+        assert allEntities.size() >= ENTITY_COUNT : "World should have at least " + ENTITY_COUNT + " entities";
     }
 
     private void verifyAllEntitiesCleaned() {
         // 验证所有实体都已被清理
-        assert ecsWorld.isClosed() : "World 应该已关闭";
+        assert ecsWorld.isClosed() : "World should be closed";
         
         Collection<EcsEntity> allEntities = ecsWorld.getAllEntity();
-        assert allEntities.isEmpty() : "关闭后所有实体应该被清理，但发现 " + allEntities.size() + " 个实体";
+        assert allEntities.isEmpty() : "All entities should be cleaned after close, but found " + allEntities.size() + " entities";
         
         // 验证通过索引获取实体也返回 null
         for (EcsEntity entity : entities) {
             EcsEntity found = ecsWorld.getEntity(entity.getIndex());
-            assert found == null : "实体 " + entity.getIndex() + " 应该已被清理";
+            assert found == null : "Entity " + entity.getIndex() + " should have been cleaned";
         }
     }
 

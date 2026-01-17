@@ -29,8 +29,8 @@ class SystemMultipleEntitiesOrderTest extends EcsTestBase {
         ComponentLexicographic lex2 = entity2.getComponent(ComponentLexicographic.class);
         
         if (lex1 != null && lex2 != null) {
-            assertTrue(lex1.data.contains("ACBDE"), "system的执行顺序应该是ACBDE");
-            assertTrue(lex2.data.contains("ACBDE"), "system的执行顺序应该是ACBDE");
+            assertTrue(lex1.data.contains("ACBDE"), "System execution order should be ACBDE");
+            assertTrue(lex2.data.contains("ACBDE"), "System execution order should be ACBDE");
         }
     }
 

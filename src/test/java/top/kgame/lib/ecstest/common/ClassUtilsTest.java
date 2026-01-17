@@ -39,7 +39,7 @@ public class ClassUtilsTest {
         String junitPackage = "org.junit.jupiter.api";
         Set<Class<?>> junitClasses = ClassUtils.getClassesFromPackage(junitPackage);
         assertNotNull(junitClasses);
-        assertFalse(junitClasses.isEmpty(), "应该能从 jar 包中加载 JUnit 的类");
+        assertFalse(junitClasses.isEmpty(), "Should be able to load JUnit classes from jar");
         // 验证包含一些预期的 JUnit 类
         assertTrue(junitClasses.contains(Test.class),
             "应该包含 Test 注解类");
@@ -48,7 +48,7 @@ public class ClassUtilsTest {
         String log4jPackage = "org.apache.logging.log4j";
         Set<Class<?>> log4jClasses = ClassUtils.getClassesFromPackage(log4jPackage);
         assertNotNull(log4jClasses);
-        assertFalse(log4jClasses.isEmpty(), "应该能从 jar 包中加载 Log4j2 的类");
+        assertFalse(log4jClasses.isEmpty(), "Should be able to load Log4j2 classes from jar");
     }
 
     @Test

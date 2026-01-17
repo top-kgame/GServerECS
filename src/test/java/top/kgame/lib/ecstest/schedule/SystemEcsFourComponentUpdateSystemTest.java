@@ -43,11 +43,11 @@ class SystemEcsFourComponentUpdateSystemTest extends EcsTestBase {
 
         // 验证 E1234 会执行（cache 被更新）
         ComponentLexicographic lex1234After = entity1234.getComponent(ComponentLexicographic.class);
-        assertTrue(lex1234After.data.contains("FourComponentSystem"), "实体 E1234 的 cache 应包含 FourComponentSystem");
+        assertTrue(lex1234After.data.contains("FourComponentSystem"), "Entity E1234's cache should contain FourComponentSystem");
 
         // 验证 E123 不会执行（cache 未被更新）
         ComponentLexicographic lex123After = entity123.getComponent(ComponentLexicographic.class);
-        assertFalse(lex123After.data.contains("FourComponentSystem"), "实体 E123 的 cache 不应包含 FourComponentSystem");
+        assertFalse(lex123After.data.contains("FourComponentSystem"), "Entity E123's cache should not contain FourComponentSystem");
     }
 
     @Override

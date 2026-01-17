@@ -34,13 +34,13 @@ public class EcsIntervalTest extends EcsTestBase {
     @Override
     protected void afterUpdate(long currentTime, int interval) {
         if (currentTime == 0) {
-            assertTrue(componentLexicographic.data.contains("interval"), "第一帧的执行不应不受tickRate的影响");
+            assertTrue(componentLexicographic.data.contains("interval"), "First frame execution should not be affected by tickRate");
             return;
         }
         if (currentTime % TEST_TICK_INTERVAL == 0) {
-            assertTrue(componentLexicographic.data.contains("interval"), "tickRate没有生效");
+            assertTrue(componentLexicographic.data.contains("interval"), "tickRate should be effective");
         } else if (currentTime % TICK_INTERVAL == 0) {
-            assertFalse(componentLexicographic.data.contains("interval"), "tickRate没有生效");
+            assertFalse(componentLexicographic.data.contains("interval"), "tickRate should be effective");
         }
     }
 } 

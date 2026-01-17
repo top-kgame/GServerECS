@@ -56,7 +56,7 @@ public class SystemUpdatePerformanceTest {
         log.info("少量实体系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
                 entityCount, iterations, totalTimeMs, avgTimeMs);
         
-        assertTrue(avgTimeMs < 10.0, "系统更新耗时应该小于10ms");
+        assertTrue(avgTimeMs < 10.0, "System update time should be less than 10ms");
     }
 
     /**
@@ -90,7 +90,7 @@ public class SystemUpdatePerformanceTest {
         log.info("中等数量实体系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
                 entityCount, iterations, totalTimeMs, avgTimeMs);
         
-        assertTrue(avgTimeMs < 50.0, "系统更新耗时应该小于50ms");
+        assertTrue(avgTimeMs < 50.0, "System update time should be less than 50ms");
     }
 
     /**
@@ -124,7 +124,7 @@ public class SystemUpdatePerformanceTest {
         log.info("大量实体系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
                 entityCount, iterations, totalTimeMs, avgTimeMs);
         
-        assertTrue(avgTimeMs < 500.0, "系统更新耗时应该小于500ms");
+        assertTrue(avgTimeMs < 500.0, "System update time should be less than 500ms");
     }
 
     /**
@@ -164,7 +164,7 @@ public class SystemUpdatePerformanceTest {
         log.info("多个系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
                 entityCount, iterations, totalTimeMs, avgTimeMs);
         
-        assertTrue(avgTimeMs < 30.0, "多个系统更新耗时应该小于30ms");
+        assertTrue(avgTimeMs < 30.0, "Multiple system update time should be less than 30ms");
     }
 
     /**
@@ -199,7 +199,7 @@ public class SystemUpdatePerformanceTest {
         log.info("系统更新频率性能测试 ({}个实体, {}次更新): 总耗时 {} ms, 平均每次 {} ms, 理论每秒更新次数 {}", 
                 entityCount, totalUpdates, totalTimeMs, avgTimeMs, updatesPerSecond);
         
-        assertTrue(avgTimeMs < 5.0, "系统更新耗时应该小于5ms");
-        assertTrue(updatesPerSecond > 100, "理论更新频率应该大于100次/秒");
+        assertTrue(avgTimeMs < 5.0, "System update time should be less than 5ms");
+        assertTrue(updatesPerSecond > 100, "Theoretical update frequency should be greater than 100 times/second");
     }
 }

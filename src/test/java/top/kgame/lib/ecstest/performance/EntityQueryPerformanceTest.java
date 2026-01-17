@@ -78,7 +78,7 @@ public class EntityQueryPerformanceTest {
         log.info("EntityQuery创建性能测试 ({}次迭代): 平均耗时 {} ms ({} ns)", 
                 iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 5000, "创建耗时应该小于5000ns");
+        assertTrue(avgTimeNs < 5000, "Creation time should be less than 5000ns");
     }
 
     /**
@@ -119,7 +119,7 @@ public class EntityQueryPerformanceTest {
         log.info("少量实体查询性能测试 ({}个实体, {}次迭代): 平均耗时 {} ms ({} ns)", 
                 entityCount, iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 10000, "查询耗时应该小于10000ns");
+        assertTrue(avgTimeNs < 10000, "Query time should be less than 10000ns");
     }
 
     /**
@@ -160,7 +160,7 @@ public class EntityQueryPerformanceTest {
         log.info("中等数量实体查询性能测试 ({}个实体, {}次迭代): 平均耗时 {} ms ({} ns)", 
                 entityCount, iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 100000, "查询耗时应该小于100000ns");
+        assertTrue(avgTimeNs < 100000, "Query time should be less than 100000ns");
     }
 
     /**
@@ -201,7 +201,7 @@ public class EntityQueryPerformanceTest {
         log.info("大量实体查询性能测试 ({}个实体, {}次迭代): 平均耗时 {} ms ({} ns)", 
                 entityCount, iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 1000000, "查询耗时应该小于1000000ns");
+        assertTrue(avgTimeNs < 1000000, "Query time should be less than 1000000ns");
     }
 
     /**
@@ -246,7 +246,7 @@ public class EntityQueryPerformanceTest {
         log.info("获取组件列表性能测试 ({}个实体, {}次迭代): 平均耗时 {} ms ({} ns)", 
                 entityCount, iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 200000, "获取组件列表耗时应该小于200000ns");
+        assertTrue(avgTimeNs < 200000, "Get component list time should be less than 200000ns");
     }
 
     /**
@@ -291,7 +291,7 @@ public class EntityQueryPerformanceTest {
         log.info("实体计数性能测试 ({}个实体, {}次迭代): 平均耗时 {} ms ({} ns)", 
                 entityCount, iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 1000, "实体计数耗时应该小于1000ns");
+        assertTrue(avgTimeNs < 1000, "Entity count time should be less than 1000ns");
     }
 
     /**
@@ -336,7 +336,7 @@ public class EntityQueryPerformanceTest {
         log.info("isEmpty性能测试 ({}个实体, {}次迭代): 平均耗时 {} ms ({} ns)", 
                 entityCount, iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 1000, "isEmpty耗时应该小于1000ns");
+        assertTrue(avgTimeNs < 1000, "isEmpty time should be less than 1000ns");
     }
 
     /**
@@ -389,6 +389,6 @@ public class EntityQueryPerformanceTest {
         log.info("复杂查询性能测试 ({}个实体, {}次迭代): 平均耗时 {} ms ({} ns)", 
                 entityCount, iterations, avgTimeMs, avgTimeNs);
         
-        assertTrue(avgTimeNs < 100000, "复杂查询耗时应该小于100000ns");
+        assertTrue(avgTimeNs < 100000, "Complex query time should be less than 100000ns");
     }
 }
