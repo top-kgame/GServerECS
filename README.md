@@ -12,13 +12,13 @@
 
 GServerECS is an open-source ECS framework designed and developed specifically for game servers, implemented in Java. This framework provides complete ECS architecture support, including runtime component addition/removal, system execution order control, on-the-fly and deferred loading of entities/components, and other key features.
 
-This framework is designed for game server scenarios. A single process can create multiple EcsWorld instances, each corresponding to a game room (Room) or scene (Scene). Each EcsWorld is designed to be thread-confined, accessible only within the thread that created it, and does not support cross-thread calls.
+This framework is designed for game server scenarios. A single process can create multiple EcsWorld instances, each corresponding to a game room (Room) or scene (Scene). Each EcsWorld is designed to be **non-thread-safe** and should only be used within a single thread. Cross-thread calls are not supported.
 
 If this project has helped you, please feel free to give it a star⭐ to show your support~ This will help more people discover it 😊
 ## 🌟 Key Features
 
 ### Core Functionality
-- **Entity Management**: Efficient entity creation, destruction, and lifecycle management
+- **Entity Management**: Entity creation, destruction, and lifecycle management
 - **Component System**: Support for dynamic component addition/removal with type safety
 - **System Execution**: Flexible system update mechanism with multiple execution modes
 - **Entity Prototypes**: Component-based entity prototype system
@@ -35,7 +35,8 @@ If this project has helped you, please feel free to give it a star⭐ to show yo
 - **Java**: Version 21 or higher
 - **Maven**: Version 3.6 or higher
 - **Dependencies**: 
-  - Log4j2 (2.24.3+)
+  - Log4j2 (2.25.3)
+  - Disruptor (3.4.4)
   - JUnit 5 (for testing)
 
 ## 🚀 Quick Start
@@ -129,6 +130,7 @@ public class Game {
     
     public void update(long currentTime) {
         // Update ECS world
+        // Note: Timestamp must be strictly increasing, must be greater than the last passed time
         world.update(currentTime);
     }
     
@@ -208,16 +210,16 @@ EntityFactory implementations are automatically scanned and registered by EcsWor
 
 GServerECS provides various predefined system base classes:
 
-- `EcsOneComponentUpdateSystem<T>`: System handling a single component
-- `EcsTwoComponentUpdateSystem<T1, T2>`: System handling two components
-- `EcsThreeComponentUpdateSystem<T1, T2, T3>`: System handling three components
-- `EcsFourComponentUpdateSystem<T1, T2, T3, T4>`: System handling four components
-- `EcsFiveComponentUpdateSystem<T1, T2, T3, T4, T5>`: System handling five components
-- `EcsStandaloneUpdateSystem<T>`: System handling a single component (excluding other components)
-- `EcsExcludeComponentUpdateSystem<T, E>`: System handling component T but excluding component E
-- `EcsInitializeSystem<T>`: Entity initialization system
-- `EcsDestroySystem<T>`: Entity destruction system
-- `EcsLogicSystem`: Logic system base class
+- `EcsOneComponentUpdateSystem<T>`: System handling entities with a single specified component
+- `EcsTwoComponentUpdateSystem<T1, T2>`: System handling entities with two specified components
+- `EcsThreeComponentUpdateSystem<T1, T2, T3>`: System handling entities with three specified components
+- `EcsFourComponentUpdateSystem<T1, T2, T3, T4>`: System handling entities with four specified components
+- `EcsFiveComponentUpdateSystem<T1, T2, T3, T4, T5>`: System handling entities with five specified components
+- `EcsStandaloneUpdateSystem`: Singleton update system, not bound to entities, executes once per world update
+- `EcsExcludeComponentUpdateSystem<T>`: System handling entities that do not contain the specified component T
+- `EcsInitializeSystem<T>`: Entity initialization system, automatically adds initialization completion marker
+- `EcsDestroySystem<T>`: Entity destruction system, handles entities marked for destruction
+- `EcsLogicSystem`: Logic system base class, provides component filtering and entity query functionality
 
 ## 📦 System Groups (EcsSystemGroup)
 
@@ -314,25 +316,58 @@ The project includes comprehensive test cases demonstrating various functionalit
 src/
 ├── main/java/top/kgame/lib/ecs/
 │   ├── annotation/          # Annotation definitions
-│   ├── command/            # Command system
+│   │   ├── After.java       # System execution order control (after)
+│   │   ├── Before.java      # System execution order control (before)
+│   │   ├── Standalone.java  # Standalone system marker
+│   │   ├── SystemGroup.java # System group marker
+│   │   └── TickRate.java    # System update interval
+│   ├── command/            # Deferred command system
+│   │   ├── EcsCommand.java # Command interface
+│   │   ├── EcsCommandBuffer.java # Command buffer
+│   │   ├── EcsCommandScope.java  # Command scope
+│   │   ├── EcsCommandAddComponent.java
+│   │   ├── EcsCommandCreateEntity.java
+│   │   ├── EcsCommandDestroyEntity.java
+│   │   └── EcsCommandRemoveComponent.java
 │   ├── core/               # Core implementation
+│   │   ├── ComponentFilter.java      # Component filter
+│   │   ├── ComponentFilterMode.java # Filter mode
+│   │   ├── ComponentFilterParam.java # Filter parameter
+│   │   ├── EcsComponentManager.java  # Component manager
+│   │   ├── EcsEntityManager.java     # Entity manager
+│   │   ├── EcsSystemManager.java     # System manager
+│   │   ├── EntityArchetype.java      # Entity archetype
+│   │   ├── EntityFactory.java        # Entity factory interface
+│   │   ├── EntityQuery.java          # Entity query
+│   │   └── SystemScheduler.java      # System scheduler
 │   ├── exception/          # Exception definitions
 │   ├── extensions/         # Extension functionality
-│   └── tools/              # Utility classes
+│   │   ├── component/      # Extension components
+│   │   ├── entity/         # Extension entity factories
+│   │   └── system/         # Extension system base classes
+│   ├── tools/              # Utility classes
+│   ├── EcsComponent.java   # Component interface
+│   ├── EcsEntity.java      # Entity class
+│   ├── EcsSystem.java      # System base class
+│   ├── EcsSystemGroup.java # System group base class
+│   └── EcsWorld.java       # ECS world
 └── test/java/top/kgame/lib/ecstest/
     ├── component/          # Component tests
     │   ├── add/            # Component addition tests
+    │   │   ├── immediately/ # Immediate addition
+    │   │   └── delay/       # Deferred addition
     │   └── remove/         # Component removal tests
+    │       ├── immediately/ # Immediate removal
+    │       └── delay/       # Deferred removal
     ├── entity/             # Entity tests
     │   ├── add/            # Entity addition tests
     │   └── remove/         # Entity removal tests
+    ├── schedule/           # System scheduling tests
     ├── system/             # System tests
-    │   ├── interval/       # System interval tests
-    │   ├── mixed/          # Mixed system tests
-    │   └── order/          # System order tests
-    │       ├── custom/     # Custom order tests
-    │       └── def/        # Default order tests
-    └── dispose/            # Resource cleanup tests
+    ├── core/               # Core functionality tests
+    ├── performance/        # Performance tests
+    ├── dispose/            # Resource cleanup tests
+    └── util/               # Test utility classes
 ```
 
 ## 📋 Subsequent Development Plan
