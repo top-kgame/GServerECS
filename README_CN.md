@@ -385,14 +385,14 @@ src/
 
 ## 🔗 相关链接
 
-- [项目主页](https://github.com/ZKGameDev/GServerECS)
-- [问题反馈](https://github.com/ZKGameDev/GServerECS/issues)
+- [项目主页](https://github.com/top-kgame/GServerECS)
+- [问题反馈](https://github.com/top-kgame/GServerECS/issues)
 
 ## 📞 联系方式
 
 如有问题或建议，请通过以下方式联系：
 
-- 提交 Issue: [GitHub Issues](https://github.com/ZKGameDev/GServerECS/issues)
+- 提交 Issue: [GitHub Issues](https://github.com/top-kgame/GServerECS/issues)
 - 邮箱: chinazhangk@gmail.com
 
 ---

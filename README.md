@@ -381,14 +381,14 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 🔗 Related Links
 
-- [Project Homepage](https://github.com/ZKGameDev/GServerECS)
-- [Issue Reporting](https://github.com/ZKGameDev/GServerECS/issues)
+- [Project Homepage](https://github.com/top-kgame/GServerECS)
+- [Issue Reporting](https://github.com/top-kgame/GServerECS/issues)
 
 ## 📞 Contact
 
 For questions or suggestions, please contact us through:
 
-- Submit Issue: [GitHub Issues](https://github.com/ZKGameDev/GServerECS/issues)
+- Submit Issue: [GitHub Issues](https://github.com/top-kgame/GServerECS/issues)
 - Email: chinazhangk@gmail.com
 
 --- 
