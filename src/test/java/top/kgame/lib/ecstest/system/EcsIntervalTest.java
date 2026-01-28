@@ -34,13 +34,13 @@ class EcsIntervalTest extends EcsTestBase {
     @Override
     protected void afterUpdate(long currentTime, int interval) {
         if (currentTime == 0) {
-            assertEquals("o11interval",  componentLexicographic.data);
+            assertEquals("o1ACBDE1interval",  componentLexicographic.data);
             return;
         }
         if (currentTime % TEST_TICK_INTERVAL == 0) {
-            assertEquals("1interval",  componentLexicographic.data);
+            assertEquals("ACBDE1interval",  componentLexicographic.data);
         } else if (currentTime % TICK_INTERVAL == 0) {
-            assertEquals("1", componentLexicographic.data);
+            assertEquals("ACBDE1", componentLexicographic.data);
         }
     }
 } 
