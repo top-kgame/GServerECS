@@ -184,7 +184,7 @@ public class ClassUtils {
         if (genType instanceof ParameterizedType parameterizedType) {
             return parameterizedType.getActualTypeArguments();
         } else {
-            throw new RuntimeException("EcsInitializeSystem Constructor execute failed! reason:GenericSuperclass not instanceof ParameterizedType");
+            throw new RuntimeException("generateParameterizedType execute failed! reason:GenericSuperclass not instanceof ParameterizedType");
         }
     }
 }
