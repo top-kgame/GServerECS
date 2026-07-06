@@ -167,7 +167,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.2.4</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -176,10 +176,13 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
+                                    <keyname>3CF7CD069BCB0884</keyname>
                                     <passphraseEnvName>MAVEN_GPG_PASSPHRASE</passphraseEnvName>
+                                    <useAgent>false</useAgent>
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
+                                        <arg>--batch</arg>
                                     </gpgArguments>
                                 </configuration>
                             </execution>
