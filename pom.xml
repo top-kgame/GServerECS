@@ -22,6 +22,16 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>top-kgame</name>
+            <email>chinazhangk@gmail.com</email>
+            <organization>top-kgame</organization>
+            <organizationUrl>https://github.com/top-kgame</organizationUrl>
+        </developer>
+    </developers>
+
     <!-- SCM信息（便于开发跟踪） -->
     <scm>
         <!-- 只读访问URL -->
@@ -41,6 +51,7 @@
         <maven.compiler.release>21</maven.compiler.release> <!-- 确保使用JDK21的API -->
         <java.version>21</java.version>
         <log4j.version>2.25.3</log4j.version>
+        <central-publishing.version>0.11.0</central-publishing.version>
     </properties>
 
     <!-- 依赖管理 -->
@@ -72,22 +83,21 @@
     </dependencies>
 
     <!-- 构建配置 -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central-direct</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
         <plugins>
-            <!-- 必须配置源码和Javadoc打包 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- 模块化支持（Java 9+） -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -113,10 +123,80 @@
     </build>
 
     <distributionManagement>
-      <repository>
-        <id>github</id>
-        <url>https://maven.pkg.github.com/top-kgame/GServerECS</url>
-      </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/top-kgame/GServerECS</url>
+        </repository>
     </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <source>21</source>
+                            <doclint>none</doclint>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <deploymentName>${project.artifactId}-${project.version}</deploymentName>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
