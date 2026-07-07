@@ -2,6 +2,7 @@
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/projects/jdk/21/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-blue.svg)](https://maven.apache.org/)
+[![Maven Central](https://img.shields.io/maven-central/v/top.kgame/kgame-lib-ecs)](https://central.sonatype.com/artifact/top.kgame/kgame-lib-ecs)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 <div align="center">
@@ -43,11 +44,13 @@ If this project has helped you, please feel free to give it a star⭐ to show yo
 
 ### 1. Add Dependency
 
+See the Maven Central badge above for the latest version, or visit [Maven Central](https://central.sonatype.com/artifact/top.kgame/kgame-lib-ecs) to copy the dependency snippet.
+
 ```xml
 <dependency>
     <groupId>top.kgame</groupId>
     <artifactId>kgame-lib-ecs</artifactId>
-    <version>1.0.1</version>
+    <version><!-- use the version shown on Maven Central --></version>
 </dependency>
 ```
 

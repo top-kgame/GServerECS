@@ -2,6 +2,7 @@
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/projects/jdk/21/)
 [![Maven](https://img.shields.io/badge/Maven-3.6+-blue.svg)](https://maven.apache.org/)
+[![Maven Central](https://img.shields.io/maven-central/v/top.kgame/kgame-lib-ecs)](https://central.sonatype.com/artifact/top.kgame/kgame-lib-ecs)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 <div align="center">
@@ -45,11 +46,13 @@ GServerECS 是一个专为Java游戏服务器设计开发的开源ECS框架，�
 
 ### 1. 添加依赖
 
+最新版本见上方 Maven Central 徽章，或访问 [Maven Central](https://central.sonatype.com/artifact/top.kgame/kgame-lib-ecs) 复制依赖片段。
+
 ```xml
 <dependency>
     <groupId>top.kgame</groupId>
     <artifactId>kgame-lib-ecs</artifactId>
-    <version>1.0.1</version>
+    <version><!-- 使用 Maven Central 页面显示的版本 --></version>
 </dependency>
 ```
 
