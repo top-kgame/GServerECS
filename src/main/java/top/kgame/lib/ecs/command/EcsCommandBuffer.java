@@ -1,10 +1,14 @@
 package top.kgame.lib.ecs.command;
 
-import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class EcsCommandBuffer {
-    private final LinkedList<EcsCommand> ecsCommands = new LinkedList<>();
+    private final Queue<EcsCommand> ecsCommands = new ConcurrentLinkedQueue<>();
+
+    public EcsCommandBuffer() {
+    }
 
     public void addCommand(EcsCommand command) {
         ecsCommands.add(command);
@@ -18,5 +22,9 @@ public class EcsCommandBuffer {
 
     public void clear() {
         ecsCommands.clear();
+    }
+
+    public Queue<EcsCommand> getEcsCommands() {
+        return ecsCommands;
     }
 }

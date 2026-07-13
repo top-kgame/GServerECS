@@ -14,11 +14,12 @@ import top.kgame.lib.ecs.exception.UnsupportedCommandException;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public abstract class EcsSystem implements EcsCleanable {
     private EcsWorld ecsWorld;
     protected EcsSystemManager ecsSystemManager;
-    private final EcsCommandBuffer commandBuffer = new EcsCommandBuffer();
+    private EcsCommandBuffer commandBuffer = new EcsCommandBuffer();
 
     private boolean standalone = false;
     private boolean hasInit = false;
@@ -27,6 +28,24 @@ public abstract class EcsSystem implements EcsCleanable {
     private EntityQuery entityQuery;
     private int updateInterval = 0;
     private long nextUpdateTime = Long.MIN_VALUE;
+
+    public void init(EcsSystemManager systemManager) {
+        this.ecsWorld = systemManager.getWorld();
+        this.ecsSystemManager = systemManager;
+        Standalone standaloneAnno = this.getClass().getAnnotation(Standalone.class);
+        if (standaloneAnno != null) {
+            standalone = true;
+        }
+        TickRate timeIntervalAnno = this.getClass().getAnnotation(TickRate.class);
+        if (null != timeIntervalAnno) {
+            this.updateInterval = timeIntervalAnno.value();
+        }
+
+        destroyed = false;
+        started = false;
+        onInit();
+        hasInit = true;
+    }
 
     public void tryUpdate() {
         if (!hasInit) {
@@ -82,23 +101,6 @@ public abstract class EcsSystem implements EcsCleanable {
         commandBuffer.clear();
     }
 
-    public void init(EcsSystemManager systemManager) {
-        this.ecsWorld = systemManager.getWorld();
-        this.ecsSystemManager = systemManager;
-        Standalone standaloneAnno = this.getClass().getAnnotation(Standalone.class);
-        if (standaloneAnno != null) {
-            standalone = true;
-        }
-        TickRate timeIntervalAnno = this.getClass().getAnnotation(TickRate.class);
-        if (null != timeIntervalAnno) {
-            this.updateInterval = timeIntervalAnno.value();
-        }
-        destroyed = false;
-        started = false;
-        onInit();
-        hasInit = true;
-    }
-
     protected void registerEntityFilter(ComponentFilter componentTypes) {
         if (entityQuery == null) {
             entityQuery = ecsWorld.findOrCreateEntityQuery(componentTypes);
@@ -109,7 +111,7 @@ public abstract class EcsSystem implements EcsCleanable {
         }
     }
 
-    protected Collection<EcsEntity> getAllMatchEntity() {
+    protected List<EcsEntity> getAllMatchEntity() {
         if (entityQuery == null) {
             return Collections.emptyList();
         }

@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 排除单个组件的更新系统基类
@@ -28,13 +29,9 @@ public abstract class EcsExcludeComponentUpdateSystem<T extends EcsComponent> ex
         typeList.add(matchComponentMatchType);
         return typeList;
     }
-
     @Override
-    protected void update() {
-        Collection<EcsEntity> entities = super.getAllMatchEntity();
-        for (EcsEntity entity : entities) {
-            update(entity);
-        }
+    protected Consumer<EcsEntity> createUpdateAction(){
+        return this::update;
     }
 
     protected abstract void update(EcsEntity entity);

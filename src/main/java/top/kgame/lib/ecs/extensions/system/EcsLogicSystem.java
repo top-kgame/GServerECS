@@ -1,24 +1,56 @@
 package top.kgame.lib.ecs.extensions.system;
 
 import top.kgame.lib.ecs.EcsComponent;
+import top.kgame.lib.ecs.EcsEntity;
 import top.kgame.lib.ecs.EcsSystem;
+import top.kgame.lib.ecs.annotation.ParallelUpdate;
 import top.kgame.lib.ecs.core.ComponentFilter;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
-abstract class EcsLogicSystem extends EcsSystem {
+public abstract class EcsLogicSystem extends EcsSystem {
     private final List<ComponentFilterParam<?>> extraMatchComponent = new ArrayList<>();
+    private boolean parallelUpdate = false;
 
     @Override
     protected void onInit() {
+        ParallelUpdate parallelUpdateAnno = this.getClass().getAnnotation(ParallelUpdate.class);
+        if (parallelUpdateAnno != null) {
+            parallelUpdate = true;
+        }
+
         processExtraComponent();
         List<ComponentFilterParam<?>> componentFilterParams = new ArrayList<>();
         componentFilterParams.addAll(getMatchComponent());
         componentFilterParams.addAll(extraMatchComponent);
         registerEntityFilter(ComponentFilter.generate(super.getWorld(), componentFilterParams));
+
+    }
+
+    @Override
+    final protected void update() {
+        Consumer<EcsEntity> action = createUpdateAction();
+        List<EcsEntity> entities = getAllMatchEntity();
+        if (parallelUpdate) {
+            ecsSystemManager.getParallelUpdateExecutor().forEach(entities, action);
+        } else {
+            for (EcsEntity entity : entities) {
+                action.accept(entity);
+            }
+        }
+    }
+
+    protected boolean isParallelUpdate() {
+        return parallelUpdate;
+    }
+
+    protected Consumer<EcsEntity> createUpdateAction() {
+        throw new UnsupportedOperationException(
+                "createUpdateAction() must be implemented, or update() must be overridden");
     }
 
     public List<ComponentFilterParam<?>> getExtraMatchComponent() {

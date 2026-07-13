@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 五组件更新系统基类
@@ -50,14 +51,12 @@ public abstract class EcsFiveComponentUpdateSystem<T1 extends EcsComponent,
     }
 
     @Override
-    protected void update() {
-        for (EcsEntity entity : super.getAllMatchEntity()) {
-            update(entity, entity.getComponent(componentMatchType1.getType()),
-                    entity.getComponent(componentMatchType2.getType()),
-                    entity.getComponent(componentMatchType3.getType()),
-                    entity.getComponent(componentMatchType4.getType()),
-                    entity.getComponent(componentMatchType5.getType()));
-        }
+    protected Consumer<EcsEntity> createUpdateAction(){
+        return entity -> update(entity, entity.getComponent(componentMatchType1.getType()),
+                entity.getComponent(componentMatchType2.getType()),
+                entity.getComponent(componentMatchType3.getType()),
+                entity.getComponent(componentMatchType4.getType()),
+                entity.getComponent(componentMatchType5.getType()));
     }
 
     protected abstract void update(EcsEntity entity, T1 component, T2 component1, T3 component2, T4 component3, T5 component5);

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 四组件更新系统基类
@@ -46,13 +47,12 @@ public abstract class EcsFourComponentUpdateSystem<T1 extends EcsComponent,
     }
 
     @Override
-    protected void update() {
-        for (EcsEntity entity : super.getAllMatchEntity()) {
-            update(entity, entity.getComponent(componentMatchType1.getType()),
-                    entity.getComponent(componentMatchType2.getType()),
-                    entity.getComponent(componentMatchType3.getType()),
-                    entity.getComponent(componentMatchType4.getType()));
-        }
+    protected Consumer<EcsEntity> createUpdateAction() {
+        return entity ->
+                update(entity, entity.getComponent(componentMatchType1.getType()),
+                        entity.getComponent(componentMatchType2.getType()),
+                        entity.getComponent(componentMatchType3.getType()),
+                        entity.getComponent(componentMatchType4.getType()));
     }
 
     protected abstract void update(EcsEntity entity, T1 component1, T2 component2, T3 component3, T4 component4);

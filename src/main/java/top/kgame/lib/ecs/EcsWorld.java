@@ -27,7 +27,7 @@ public class EcsWorld{
 
     private final EcsSystemManager systemManager = new EcsSystemManager(this);
 
-    private final EcsCommandBuffer commandBuffer = new EcsCommandBuffer();;
+    private final EcsCommandBuffer commandBuffer = new EcsCommandBuffer();
 
     private Object context;
 

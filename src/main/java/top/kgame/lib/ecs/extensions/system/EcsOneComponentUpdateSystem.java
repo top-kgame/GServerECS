@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 单组件更新系统基类
@@ -33,11 +34,9 @@ public abstract class EcsOneComponentUpdateSystem<T extends EcsComponent> extend
     }
 
     @Override
-    protected void update() {
-        Collection<EcsEntity> entities = super.getAllMatchEntity();
-        for (EcsEntity entity : entities) {
-            update(entity, entity.getComponent(matchComponentMatchType.getType()));
-        }
+    protected Consumer<EcsEntity> createUpdateAction() {
+        return entity ->
+                update(entity, entity.getComponent(matchComponentMatchType.getType()));
     }
 
     protected abstract void update(EcsEntity entity, T component);

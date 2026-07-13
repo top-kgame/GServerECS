@@ -2,6 +2,8 @@ package top.kgame.lib.ecs.extensions.system;
 
 import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.EcsEntity;
+import top.kgame.lib.ecs.command.EcsCommandAddComponent;
+import top.kgame.lib.ecs.command.EcsCommandScope;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
 import top.kgame.lib.ecs.exception.InvalidSystemInitFinishSingle;
 import top.kgame.lib.ecs.tools.ClassUtils;
@@ -10,6 +12,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 实体初始化系统基类
@@ -36,13 +39,12 @@ public abstract class EcsInitializeSystem<T extends EcsComponent> extends EcsLog
     }
 
     @Override
-    protected void update() {
-        Collection<EcsEntity> entityList = super.getAllMatchEntity();
-        for (EcsEntity entity : entityList) {
+    protected Consumer<EcsEntity> createUpdateAction() {
+        return entity -> {
             if (onInitialize(entity, entity.getComponent(matchComponentMatchType.getType()))) {
-                entity.addComponent(systemInitFinishSingle);
+                addDelayCommand(new EcsCommandAddComponent(entity, systemInitFinishSingle), EcsCommandScope.SYSTEM);
             }
-        }
+        };
     }
 
     @SuppressWarnings("unchecked")

@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 实体销毁系统基类
@@ -34,11 +35,10 @@ public abstract class EcsDestroySystem<T extends EcsComponent> extends EcsLogicS
     }
 
     @Override
-    protected void update() {
-        Collection<EcsEntity> entities = super.getAllMatchEntity();
-        for (EcsEntity entity : entities) {
+    protected Consumer<EcsEntity> createUpdateAction() {
+        return entity -> {
             onEntityDestroy(entity, entity.getComponent(matchComponentMatchType.getType()));
-        }
+        };
     }
 
     protected abstract void onEntityDestroy(EcsEntity entity, T component);
