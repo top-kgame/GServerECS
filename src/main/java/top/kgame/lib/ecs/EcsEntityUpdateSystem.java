@@ -1,20 +1,20 @@
-package top.kgame.lib.ecs.extensions.system;
+package top.kgame.lib.ecs;
 
-import top.kgame.lib.ecs.EcsComponent;
-import top.kgame.lib.ecs.EcsEntity;
-import top.kgame.lib.ecs.EcsSystem;
 import top.kgame.lib.ecs.annotation.ParallelUpdate;
 import top.kgame.lib.ecs.core.ComponentFilter;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
+import top.kgame.lib.ecs.core.EntityQuery;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class EcsLogicSystem extends EcsSystem {
+public abstract class EcsEntityUpdateSystem extends EcsSystem {
     private final List<ComponentFilterParam<?>> extraMatchComponent = new ArrayList<>();
     private boolean parallelUpdate = false;
+    private EntityQuery entityQuery;
 
     @Override
     protected void onInit() {
@@ -32,6 +32,14 @@ public abstract class EcsLogicSystem extends EcsSystem {
     }
 
     @Override
+    protected boolean needUpdate() {
+        if (entityQuery == null) {
+            return false;
+        }
+        return !entityQuery.isEmpty();
+    }
+
+    @Override
     final protected void update() {
         Consumer<EcsEntity> action = createUpdateAction();
         List<EcsEntity> entities = getAllMatchEntity();
@@ -42,6 +50,23 @@ public abstract class EcsLogicSystem extends EcsSystem {
                 action.accept(entity);
             }
         }
+    }
+
+    protected void registerEntityFilter(ComponentFilter componentTypes) {
+        if (entityQuery == null) {
+            entityQuery = getWorld().findOrCreateEntityQuery(componentTypes);
+            return;
+        }
+        if (!entityQuery.matchFilter(componentTypes)) {
+            throw new UnsupportedOperationException("Repeatedly setting EntityQuery");
+        }
+    }
+
+    protected List<EcsEntity> getAllMatchEntity() {
+        if (entityQuery == null) {
+            return Collections.emptyList();
+        }
+        return entityQuery.getEntityList();
     }
 
     protected boolean isParallelUpdate() {

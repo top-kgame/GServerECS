@@ -5,7 +5,7 @@ import top.kgame.lib.ecs.EcsSystemGroup;
 import top.kgame.lib.ecs.annotation.ParallelUpdate;
 import top.kgame.lib.ecs.annotation.SystemGroup;
 import top.kgame.lib.ecs.exception.InvalidParallelUpdateAnnotationException;
-import top.kgame.lib.ecs.extensions.system.EcsLogicSystem;
+import top.kgame.lib.ecs.EcsEntityUpdateSystem;
 import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.core.EntityFactory;
 import top.kgame.lib.ecs.exception.InvalidEcsEntityFactoryException;
@@ -42,7 +42,7 @@ public class EcsClassScanner {
                 continue;
             }
             if (clazz.getAnnotation(ParallelUpdate.class) != null
-                    && !EcsLogicSystem.class.isAssignableFrom(clazz)) {
+                    && !EcsEntityUpdateSystem.class.isAssignableFrom(clazz)) {
                 throw new InvalidParallelUpdateAnnotationException(clazz);
             }
             SystemGroup systemGroupAnnotation = clazz.getAnnotation(SystemGroup.class);

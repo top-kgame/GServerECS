@@ -2,6 +2,7 @@ package top.kgame.lib.ecs.extensions.system;
 
 import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.EcsEntity;
+import top.kgame.lib.ecs.EcsEntityUpdateSystem;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
 import top.kgame.lib.ecs.tools.ClassUtils;
 
@@ -23,7 +24,7 @@ import java.util.function.Consumer;
  * @param <T4> 第四个必需的组件类型
  */
 public abstract class EcsFourComponentUpdateSystem<T1 extends EcsComponent,
-        T2 extends EcsComponent, T3 extends EcsComponent, T4 extends EcsComponent> extends EcsLogicSystem {
+        T2 extends EcsComponent, T3 extends EcsComponent, T4 extends EcsComponent> extends EcsEntityUpdateSystem {
     private ComponentFilterParam<T1> componentMatchType1;
     private ComponentFilterParam<T2> componentMatchType2;
     private ComponentFilterParam<T3> componentMatchType3;

@@ -2,6 +2,7 @@ package top.kgame.lib.ecs.extensions.system;
 
 import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.EcsEntity;
+import top.kgame.lib.ecs.EcsEntityUpdateSystem;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
 import top.kgame.lib.ecs.tools.ClassUtils;
 
@@ -20,7 +21,7 @@ import java.util.function.Consumer;
  * @param <T1> 第一个必需的组件类型
  * @param <T2> 第二个必需的组件类型
  */
-public abstract class EcsTwoComponentUpdateSystem<T1 extends EcsComponent, T2 extends EcsComponent> extends EcsLogicSystem {
+public abstract class EcsTwoComponentUpdateSystem<T1 extends EcsComponent, T2 extends EcsComponent> extends EcsEntityUpdateSystem {
     private ComponentFilterParam<T1> componentMatchType1;
     private ComponentFilterParam<T2> componentMatchType2;
 

@@ -18,6 +18,12 @@ public class TestSystemD extends EcsSystem {
     protected void onStart() {
     }
 
+    @Override
+    protected boolean needUpdate() {
+        return true;
+    }
+
+    @Override
     protected void update() {
     }
 

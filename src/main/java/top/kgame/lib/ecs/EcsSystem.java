@@ -1,41 +1,30 @@
 package top.kgame.lib.ecs;
 
-import top.kgame.lib.ecs.annotation.Standalone;
 import top.kgame.lib.ecs.annotation.TickRate;
 import top.kgame.lib.ecs.command.EcsCommand;
 import top.kgame.lib.ecs.command.EcsCommandBuffer;
 import top.kgame.lib.ecs.command.EcsCommandScope;
-import top.kgame.lib.ecs.core.ComponentFilter;
 import top.kgame.lib.ecs.core.EcsCleanable;
 import top.kgame.lib.ecs.core.EcsSystemManager;
-import top.kgame.lib.ecs.core.EntityQuery;
 import top.kgame.lib.ecs.exception.InvalidEcsSystemState;
 import top.kgame.lib.ecs.exception.UnsupportedCommandException;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public abstract class EcsSystem implements EcsCleanable {
     private EcsWorld ecsWorld;
     protected EcsSystemManager ecsSystemManager;
     private EcsCommandBuffer commandBuffer = new EcsCommandBuffer();
 
-    private boolean standalone = false;
     private boolean hasInit = false;
     private boolean started = false;
     private boolean destroyed = false;
-    private EntityQuery entityQuery;
+
     private int updateInterval = 0;
     private long nextUpdateTime = Long.MIN_VALUE;
 
     public void init(EcsSystemManager systemManager) {
         this.ecsWorld = systemManager.getWorld();
         this.ecsSystemManager = systemManager;
-        Standalone standaloneAnno = this.getClass().getAnnotation(Standalone.class);
-        if (standaloneAnno != null) {
-            standalone = true;
-        }
         TickRate timeIntervalAnno = this.getClass().getAnnotation(TickRate.class);
         if (null != timeIntervalAnno) {
             this.updateInterval = timeIntervalAnno.value();
@@ -54,7 +43,7 @@ public abstract class EcsSystem implements EcsCleanable {
         if (ecsWorld.getCurrentTime() < nextUpdateTime) {
             return;
         }
-        if (standalone || hasMatchEntity()) {
+        if (needUpdate()) {
             run();
         } else {
             tryStop();
@@ -69,13 +58,6 @@ public abstract class EcsSystem implements EcsCleanable {
         }
         update();
         commandBuffer.execute();
-    }
-
-    private boolean hasMatchEntity() {
-        if (entityQuery == null) {
-            return false;
-        }
-        return !entityQuery.isEmpty();
     }
 
     private void tryStop() {
@@ -99,23 +81,6 @@ public abstract class EcsSystem implements EcsCleanable {
             destroyed = true;
         }
         commandBuffer.clear();
-    }
-
-    protected void registerEntityFilter(ComponentFilter componentTypes) {
-        if (entityQuery == null) {
-            entityQuery = ecsWorld.findOrCreateEntityQuery(componentTypes);
-            return;
-        }
-        if (!entityQuery.matchFilter(componentTypes)) {
-            throw new UnsupportedOperationException("Repeatedly setting EntityQuery");
-        }
-    }
-
-    protected List<EcsEntity> getAllMatchEntity() {
-        if (entityQuery == null) {
-            return Collections.emptyList();
-        }
-        return entityQuery.getEntityList();
     }
 
     public EcsWorld getWorld() {
@@ -156,6 +121,7 @@ public abstract class EcsSystem implements EcsCleanable {
      */
     protected abstract void onStart();
 
+    protected abstract boolean needUpdate();
     protected abstract void update();
 
     /**

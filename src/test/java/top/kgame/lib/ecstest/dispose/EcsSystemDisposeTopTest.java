@@ -1,6 +1,6 @@
 package top.kgame.lib.ecstest.dispose;
 
-import top.kgame.lib.ecs.extensions.system.EcsStandaloneUpdateSystem;
+import top.kgame.lib.ecs.EcsStandaloneUpdateSystem;
 
 public class EcsSystemDisposeTopTest extends EcsStandaloneUpdateSystem {
     @Override

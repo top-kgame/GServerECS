@@ -2,6 +2,7 @@ package top.kgame.lib.ecs.extensions.system;
 
 import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.EcsEntity;
+import top.kgame.lib.ecs.EcsEntityUpdateSystem;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
 import top.kgame.lib.ecs.tools.ClassUtils;
 
@@ -18,7 +19,7 @@ import java.util.function.Consumer;
  * 
  * @param <T> 要排除的组件类型
  */
-public abstract class EcsExcludeComponentUpdateSystem<T extends EcsComponent> extends EcsLogicSystem {
+public abstract class EcsExcludeComponentUpdateSystem<T extends EcsComponent> extends EcsEntityUpdateSystem {
     @SuppressWarnings("unchecked")
     @Override
     protected Collection<ComponentFilterParam<?>> getMatchComponent() {

@@ -7,6 +7,6 @@ public class InvalidParallelUpdateAnnotationException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public InvalidParallelUpdateAnnotationException(Class<?> clazz) {
-        super("@ParallelUpdate can only be used on EcsLogicSystem: " + clazz.getName());
+        super("@ParallelUpdate can only be used on EcsEntityUpdateSystem: " + clazz.getName());
     }
 }

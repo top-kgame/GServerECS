@@ -30,6 +30,7 @@ If this project has helped you, please feel free to give it a star⭐ to show yo
 - **Deferred Commands**: Support for deferred execution of entity operation commands
 - **Entity Factories**: Factory pattern for entity creation, simplifying entity instantiation
 - **Auto-scanning**: Automatic discovery and registration of systems, components, and factories based on package scanning
+- **Parallel Update**: Process entity updates within a single logic system across multiple threads via the `@ParallelUpdate` annotation
 
 ## 📋 System Requirements
 
@@ -205,6 +206,28 @@ GServerECS provides rich annotations to control system behavior:
 - **Parameters**: `Class<? extends EcsSystem>[] value()` - Target system type array
 - **Description**: EcsSystem marked with this annotation will execute updates before the specified EcsSystem. EcsSystem with the same conditions will execute in dictionary order. Can be used in SystemGroup.
 
+#### @ParallelUpdate
+- **Purpose**: Marks that entity updates within a logic system may be executed in parallel across multiple threads
+- **Target**: `EcsEntityUpdateSystem` and its subclasses (such as the various `EcsXxxComponentUpdateSystem`). Applying it to non-`EcsEntityUpdateSystem` types such as `EcsSystemGroup` or `EcsStandaloneUpdateSystem` causes the framework to throw `InvalidParallelUpdateAnnotationException` during scanning.
+- **Parameters**: None
+- **Description**: For a system marked with this annotation, matching entities are iterated and processed in parallel across multiple threads within a single update; systems themselves still execute **serially** in their original order, only the per-entity processing inside a system runs in parallel. The following constraints must be met:
+  - The system's update logic must be **thread-safe**, since multiple entities are processed on different threads concurrently.
+  - Do **not** modify entity structure directly during parallel processing (e.g. `entity.addComponent`, `entity.removeComponent`, `world.requestDestroyEntity`). Use deferred commands (`addDelayCommand`) instead. Command enqueueing is thread-safe, and the commands are executed serially on a single thread after the parallel iteration completes.
+  - Avoid reading/writing cross-entity shared mutable state directly in update, unless you guarantee thread safety yourself.
+
+```java
+@ParallelUpdate
+public class MovementSystem extends EcsOneComponentUpdateSystem<PositionComponent> {
+    @Override
+    protected void update(EcsEntity entity, PositionComponent position) {
+        // Only mutate this entity's own component data, thread-safe
+        position.x += 1.0f;
+        // For structural changes, use deferred commands
+        // addDelayCommand(new EcsCommandAddComponent(entity, new TagComponent()), EcsCommandScope.SYSTEM);
+    }
+}
+```
+
 ### Entity Factory
 
 EntityFactory implementations are automatically scanned and registered by EcsWorld. No annotation is required. Simply implement the EntityFactory interface or extend BaseEntityFactory, and the framework will automatically discover and register your factory classes.
@@ -222,7 +245,7 @@ GServerECS provides various predefined system base classes:
 - `EcsExcludeComponentUpdateSystem<T>`: System handling entities that do not contain the specified component T
 - `EcsInitializeSystem<T>`: Entity initialization system, automatically adds initialization completion marker
 - `EcsDestroySystem<T>`: Entity destruction system, handles entities marked for destruction
-- `EcsLogicSystem`: Logic system base class, provides component filtering and entity query functionality
+- `EcsEntityUpdateSystem`: Logic system base class, provides component filtering and entity query functionality
 
 ## 📦 System Groups (EcsSystemGroup)
 
@@ -321,6 +344,7 @@ src/
 │   ├── annotation/          # Annotation definitions
 │   │   ├── After.java       # System execution order control (after)
 │   │   ├── Before.java      # System execution order control (before)
+│   │   ├── ParallelUpdate.java # Per-entity parallel update marker
 │   │   ├── Standalone.java  # Standalone system marker
 │   │   ├── SystemGroup.java # System group marker
 │   │   └── TickRate.java    # System update interval

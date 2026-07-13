@@ -31,6 +31,7 @@ GServerECS 是一个专为Java游戏服务器设计开发的开源ECS框架，�
 - **延迟命令**: 支持延迟执行的实体操作命令
 - **实体工厂**: 工厂模式创建实体，简化实体实例化
 - **自动扫描**: 基于包扫描自动发现和注册系统、组件、工厂
+- **并行更新**: 通过`@ParallelUpdate`注解，让单个逻辑系统内的实体更新多线程并行执行
 
 
 ## 📋 系统要求
@@ -206,6 +207,28 @@ GServerECS提供了丰富的注解来控制系统的行为：
 - **参数**: `Class<? extends EcsSystem>[] value()` - 目标系统类型数组
 - **说明**: 被此注解标记的EcsSystem将在指定EcsSystem执行之前执行更新。相同条件的EcsSystem，会按照字典序执行。可用于SystemGroup。
 
+#### @ParallelUpdate
+- **作用**: 标记逻辑系统内对匹配实体的更新可以多线程并行执行
+- **可作用对象**: `EcsEntityUpdateSystem`及其子类（如各`EcsXxxComponentUpdateSystem`）。用于`EcsSystemGroup`、`EcsStandaloneUpdateSystem`等非`EcsEntityUpdateSystem`类型时，框架在扫描阶段会抛出`InvalidParallelUpdateAnnotationException`。
+- **参数**: 无
+- **说明**: 被此注解标记的系统，在单次update中会以多线程方式并行遍历并处理匹配的实体；系统之间仍按原有顺序**串行**执行，仅系统内部的实体处理并行。使用时必须满足以下约束：
+  - 系统的update逻辑必须**线程安全**，多个实体会在不同线程上同时处理。
+  - 并行处理期间**不得直接修改实体结构**（如`entity.addComponent`、`entity.removeComponent`、`world.requestDestroyEntity`等）；如需修改，必须通过延迟命令（`addDelayCommand`）执行。延迟命令的入队是线程安全的，命令会在并行遍历结束后由单线程统一执行。
+  - 避免在update中直接读写跨实体的共享可变状态，除非自行保证线程安全。
+
+```java
+@ParallelUpdate
+public class MovementSystem extends EcsOneComponentUpdateSystem<PositionComponent> {
+    @Override
+    protected void update(EcsEntity entity, PositionComponent position) {
+        // 仅修改自身组件数据，线程安全
+        position.x += 1.0f;
+        // 若需结构变更，走延迟命令
+        // addDelayCommand(new EcsCommandAddComponent(entity, new TagComponent()), EcsCommandScope.SYSTEM);
+    }
+}
+```
+
 ### 实体工厂
 
 EntityFactory实现类会被EcsWorld自动扫描和注册，无需注解。只需实现EntityFactory接口或继承BaseEntityFactory，框架会自动发现并注册您的工厂类。
@@ -223,7 +246,7 @@ GServerECS提供了多种预定义的系统基类：
 - `EcsExcludeComponentUpdateSystem<T>`: 处理不包含指定组件T的实体的系统
 - `EcsInitializeSystem<T>`: 实体初始化系统，自动为实体添加初始化完成标记
 - `EcsDestroySystem<T>`: 实体销毁系统，处理标记为销毁状态的实体
-- `EcsLogicSystem`: 逻辑系统基类，提供组件过滤和实体查询功能
+- `EcsEntityUpdateSystem`: 逻辑系统基类，提供组件过滤和实体查询功能
 
 ## 📦 系统组（EcsSystemGroup）
 
@@ -325,6 +348,7 @@ src/
 │   ├── annotation/          # 注解定义
 │   │   ├── After.java       # 系统执行顺序控制（之后）
 │   │   ├── Before.java      # 系统执行顺序控制（之前）
+│   │   ├── ParallelUpdate.java # 系统内实体并行更新标记
 │   │   ├── Standalone.java  # 独立系统标记
 │   │   ├── SystemGroup.java # 系统组标记
 │   │   └── TickRate.java    # 系统更新间隔

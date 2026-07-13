@@ -2,6 +2,7 @@ package top.kgame.lib.ecs.extensions.system;
 
 import top.kgame.lib.ecs.EcsComponent;
 import top.kgame.lib.ecs.EcsEntity;
+import top.kgame.lib.ecs.EcsEntityUpdateSystem;
 import top.kgame.lib.ecs.command.EcsCommandAddComponent;
 import top.kgame.lib.ecs.command.EcsCommandScope;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
@@ -21,7 +22,7 @@ import java.util.function.Consumer;
  * 
  * @param <T> 实体初始化所需的组件类型
  */
-public abstract class EcsInitializeSystem<T extends EcsComponent> extends EcsLogicSystem {
+public abstract class EcsInitializeSystem<T extends EcsComponent> extends EcsEntityUpdateSystem {
     public static abstract class SystemInitFinishSingle implements EcsComponent {}
 
     private ComponentFilterParam<T> matchComponentMatchType;

@@ -2,13 +2,12 @@ package top.kgame.lib.ecs;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import top.kgame.lib.ecs.annotation.Standalone;
 import top.kgame.lib.ecs.core.SystemScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Standalone
+
 public abstract class EcsSystemGroup extends EcsSystem {
     private static final Logger logger = LogManager.getLogger(EcsSystemGroup.class);
 
@@ -32,6 +31,11 @@ public abstract class EcsSystemGroup extends EcsSystem {
     public void removeSystem(EcsSystem system) {
         systemsToRemove.add(system);
         logger.info("{} remove system:{}", this.getClass().getSimpleName(), system.getClass());
+    }
+
+    @Override
+    protected boolean needUpdate() {
+        return !systemScheduler.getSortedSystem().isEmpty();
     }
 
     @Override

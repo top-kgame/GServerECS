@@ -1,12 +1,9 @@
 package top.kgame.lib.ecstest.schedule;
 
 import org.junit.jupiter.api.Test;
-import top.kgame.lib.ecs.annotation.SystemGroup;
-import top.kgame.lib.ecs.extensions.system.EcsStandaloneUpdateSystem;
+import top.kgame.lib.ecs.EcsStandaloneUpdateSystem;
 import top.kgame.lib.ecstest.util.EcsTestBase;
-import top.kgame.lib.ecstest.util.component.ComponentLexicographic;
 import top.kgame.lib.ecstest.util.entity.EntityIndex;
-import top.kgame.lib.ecstest.util.group.SysGroupDefaultLogic;
 
 import static org.junit.jupiter.api.Assertions.*;
 

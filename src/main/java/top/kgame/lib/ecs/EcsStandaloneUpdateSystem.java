@@ -1,6 +1,5 @@
-package top.kgame.lib.ecs.extensions.system;
+package top.kgame.lib.ecs;
 
-import top.kgame.lib.ecs.EcsSystem;
 import top.kgame.lib.ecs.annotation.Standalone;
 
 /**
@@ -18,6 +17,11 @@ public abstract class EcsStandaloneUpdateSystem extends EcsSystem {
 
     @Override
     protected void onStart() {
+    }
+
+    @Override
+    protected boolean needUpdate() {
+        return true;
     }
 
     @Override
