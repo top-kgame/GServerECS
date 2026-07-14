@@ -2,13 +2,14 @@ package top.kgame.lib.ecstest.performance;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import top.kgame.lib.ecs.EcsSystem;
 import top.kgame.lib.ecs.EcsWorld;
 import top.kgame.lib.ecs.core.EcsSystemManager;
 import top.kgame.lib.ecs.core.SystemScheduler;
-import top.kgame.lib.ecstest.core.system.*;
+import top.kgame.lib.ecstest.logic.core.system.*;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -30,6 +31,25 @@ public class SystemSortPerformanceTest {
         scheduler = new SystemScheduler();
         ecsWorld = EcsWorld.generateInstance("top.kgame.lib.ecs.nonexistent");
         systemManager = new EcsSystemManager(ecsWorld);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (ecsWorld != null && !ecsWorld.isClosed()) {
+            ecsWorld.close();
+        }
+    }
+
+    private void warmupSort(Set<EcsSystem> systems) {
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> {
+                    SystemScheduler testScheduler = new SystemScheduler();
+                    for (EcsSystem system : systems) {
+                        testScheduler.addSystem(system);
+                    }
+                    testScheduler.getSortedSystem();
+                });
     }
 
     /**
@@ -59,14 +79,7 @@ public class SystemSortPerformanceTest {
             systems.add(createAndInitSystem(TestSystemA.class));
         }
         
-        // 预热
-        for (int i = 0; i < 100; i++) {
-            SystemScheduler testScheduler = new SystemScheduler();
-            for (EcsSystem system : systems) {
-                testScheduler.addSystem(system);
-            }
-            testScheduler.getSortedSystem();
-        }
+        warmupSort(systems);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -100,14 +113,7 @@ public class SystemSortPerformanceTest {
             systems.add(createAndInitSystem(TestSystemA.class));
         }
         
-        // 预热
-        for (int i = 0; i < 10; i++) {
-            SystemScheduler testScheduler = new SystemScheduler();
-            for (EcsSystem system : systems) {
-                testScheduler.addSystem(system);
-            }
-            testScheduler.getSortedSystem();
-        }
+        warmupSort(systems);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -141,14 +147,7 @@ public class SystemSortPerformanceTest {
             systems.add(createAndInitSystem(TestSystemA.class));
         }
         
-        // 预热
-        for (int i = 0; i < 5; i++) {
-            SystemScheduler testScheduler = new SystemScheduler();
-            for (EcsSystem system : systems) {
-                testScheduler.addSystem(system);
-            }
-            testScheduler.getSortedSystem();
-        }
+        warmupSort(systems);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -185,14 +184,7 @@ public class SystemSortPerformanceTest {
         systems.add(createAndInitSystem(TestSystemF.class));
         systems.add(createAndInitSystem(TestSystemG.class));
         
-        // 预热
-        for (int i = 0; i < 100; i++) {
-            SystemScheduler testScheduler = new SystemScheduler();
-            for (EcsSystem system : systems) {
-                testScheduler.addSystem(system);
-            }
-            testScheduler.getSortedSystem();
-        }
+        warmupSort(systems);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -225,6 +217,8 @@ public class SystemSortPerformanceTest {
             systems.add(createAndInitSystem(TestSystemA.class));
         }
         
+        warmupSort(systems);
+
         // 第一次排序（无缓存）
         SystemScheduler firstScheduler = new SystemScheduler();
         for (EcsSystem system : systems) {

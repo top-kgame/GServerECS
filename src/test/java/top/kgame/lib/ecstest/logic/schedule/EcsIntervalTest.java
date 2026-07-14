@@ -1,0 +1,46 @@
+package top.kgame.lib.ecstest.logic.schedule;
+
+import org.junit.jupiter.api.Test;
+import top.kgame.lib.ecs.EcsEntity;
+import top.kgame.lib.ecstest.logic.util.EcsTestBase;
+import top.kgame.lib.ecstest.logic.util.component.ComponentLexicographic;
+import top.kgame.lib.ecstest.logic.util.entity.EntityIndex;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * System间隔测试用例
+ */
+public class EcsIntervalTest extends EcsTestBase {
+    private EcsEntity entity;
+    private static final int TICK_INTERVAL = DEFAULT_INTERVAL;
+    public static final int TEST_TICK_INTERVAL  = TICK_INTERVAL * 2;
+    private ComponentLexicographic componentLexicographic;
+
+    @Test
+    void updateWorld() {
+        // 初始化测试数据
+        entity = ecsWorld.createEntity(EntityIndex.E1.getId());
+        componentLexicographic = entity.getComponent(ComponentLexicographic.class);
+        
+        // 执行更新循环
+        updateWorld(0, 6000, TICK_INTERVAL);
+    }
+
+    @Override
+    protected void beforeUpdate(long currentTime, int interval) {
+    }
+
+    @Override
+    protected void afterUpdate(long currentTime, int interval) {
+        if (currentTime == 0) {
+            assertTrue(componentLexicographic.data.contains("interval"), "First frame execution should not be affected by tickRate");
+            return;
+        }
+        if (currentTime % TEST_TICK_INTERVAL == 0) {
+            assertTrue(componentLexicographic.data.contains("interval"), "tickRate should be effective");
+        } else if (currentTime % TICK_INTERVAL == 0) {
+            assertFalse(componentLexicographic.data.contains("interval"), "tickRate should be effective");
+        }
+    }
+} 

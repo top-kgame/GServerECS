@@ -2,140 +2,54 @@ package top.kgame.lib.ecstest.performance;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import top.kgame.lib.ecs.EcsEntity;
 import top.kgame.lib.ecs.EcsWorld;
-import top.kgame.lib.ecs.extensions.system.EcsOneComponentUpdateSystem;
-import top.kgame.lib.ecstest.util.component.Component1;
-import top.kgame.lib.ecstest.util.entity.EntityIndex;
+import top.kgame.lib.ecstest.logic.util.entity.EntityIndex;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * SystemUpdate性能测试
- * 测试系统更新的性能
+ * SystemUpdate 性能测试：稳态实体下 {@link EcsWorld#update} 吞吐回归门槛。
+ * <p>
+ * 正式计时前通过 {@link EcsPerformanceTestSupport} 做充分预热。
  */
 public class SystemUpdatePerformanceTest {
     private static final Logger log = LogManager.getLogger(SystemUpdatePerformanceTest.class);
     private EcsWorld ecsWorld;
-    
+
     @BeforeEach
     void setUp() {
-        ecsWorld = EcsWorld.generateInstance("top.kgame.lib.ecstest.util");
+        ecsWorld = EcsWorld.generateInstance("top.kgame.lib.ecstest.logic.util");
     }
 
-    /**
-     * 测试少量实体的系统更新性能
-     */
+    @AfterEach
+    void tearDown() {
+        if (ecsWorld != null && !ecsWorld.isClosed()) {
+            ecsWorld.close();
+        }
+    }
+
     @Test
     void testSystemUpdatePerformanceWithSmallEntityCount() {
-        int entityCount = 100;
-        int iterations = 1000;
-        
-        // 创建实体
-        for (int i = 0; i < entityCount; i++) {
-            ecsWorld.createEntity(EntityIndex.E1.getId());
-        }
-        
-        // 预热
-        for (int i = 0; i < 10; i++) {
-            ecsWorld.update(i * 33);
-        }
-        
-        // 性能测试
-        long startTime = System.nanoTime();
-        for (int i = 0; i < iterations; i++) {
-            ecsWorld.update((i + 10) * 33);
-        }
-        long endTime = System.nanoTime();
-        
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / iterations;
-        
-        log.info("少量实体系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
-                entityCount, iterations, totalTimeMs, avgTimeMs);
-        
-        assertTrue(avgTimeMs < 10.0, "System update time should be less than 10ms");
+        runUpdateBenchmark("少量实体", 100, 1000, 10.0, false);
     }
 
-    /**
-     * 测试中等数量实体的系统更新性能
-     */
     @Test
     void testSystemUpdatePerformanceWithMediumEntityCount() {
-        int entityCount = 1000;
-        int iterations = 100;
-        
-        // 创建实体
-        for (int i = 0; i < entityCount; i++) {
-            ecsWorld.createEntity(EntityIndex.E1.getId());
-        }
-        
-        // 预热
-        for (int i = 0; i < 5; i++) {
-            ecsWorld.update(i * 33);
-        }
-        
-        // 性能测试
-        long startTime = System.nanoTime();
-        for (int i = 0; i < iterations; i++) {
-            ecsWorld.update((i + 5) * 33);
-        }
-        long endTime = System.nanoTime();
-        
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / iterations;
-        
-        log.info("中等数量实体系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
-                entityCount, iterations, totalTimeMs, avgTimeMs);
-        
-        assertTrue(avgTimeMs < 50.0, "System update time should be less than 50ms");
+        runUpdateBenchmark("中等实体", 1000, 100, 50.0, false);
     }
 
-    /**
-     * 测试大量实体的系统更新性能
-     */
     @Test
     void testSystemUpdatePerformanceWithLargeEntityCount() {
-        int entityCount = 10000;
-        int iterations = 10;
-        
-        // 创建实体
-        for (int i = 0; i < entityCount; i++) {
-            ecsWorld.createEntity(EntityIndex.E1.getId());
-        }
-        
-        // 预热
-        for (int i = 0; i < 3; i++) {
-            ecsWorld.update(i * 33);
-        }
-        
-        // 性能测试
-        long startTime = System.nanoTime();
-        for (int i = 0; i < iterations; i++) {
-            ecsWorld.update((i + 3) * 33);
-        }
-        long endTime = System.nanoTime();
-        
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / iterations;
-        
-        log.info("大量实体系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
-                entityCount, iterations, totalTimeMs, avgTimeMs);
-        
-        assertTrue(avgTimeMs < 500.0, "System update time should be less than 500ms");
+        runUpdateBenchmark("大量实体", 10000, 10, 500.0, false);
     }
 
-    /**
-     * 测试多个系统的更新性能
-     */
     @Test
     void testMultipleSystemUpdatePerformance() {
         int entityCount = 500;
         int iterations = 100;
-        
-        // 创建不同类型的实体
         for (int i = 0; i < entityCount; i++) {
             if (i % 3 == 0) {
                 ecsWorld.createEntity(EntityIndex.E1.getId());
@@ -145,61 +59,50 @@ public class SystemUpdatePerformanceTest {
                 ecsWorld.createEntity(EntityIndex.E123.getId());
             }
         }
-        
-        // 预热
-        for (int i = 0; i < 5; i++) {
-            ecsWorld.update(i * 33);
-        }
-        
-        // 性能测试
-        long startTime = System.nanoTime();
-        for (int i = 0; i < iterations; i++) {
-            ecsWorld.update((i + 5) * 33);
-        }
-        long endTime = System.nanoTime();
-        
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / iterations;
-        
-        log.info("多个系统更新性能测试 ({}个实体, {}次迭代): 总耗时 {} ms, 平均每次 {} ms", 
-                entityCount, iterations, totalTimeMs, avgTimeMs);
-        
-        assertTrue(avgTimeMs < 30.0, "Multiple system update time should be less than 30ms");
+        measureAndAssert("多类型实体/多系统", entityCount, iterations, 30.0, false);
     }
 
-    /**
-     * 测试系统更新频率对性能的影响
-     */
     @Test
     void testSystemUpdateFrequencyPerformance() {
-        int entityCount = 1000;
-        int totalUpdates = 1000;
-        
-        // 创建实体
+        runUpdateBenchmark("更新频率", 1000, 1000, 5.0, true);
+    }
+
+    private void runUpdateBenchmark(String scenario,
+                                    int entityCount,
+                                    int iterations,
+                                    double maxAvgMs,
+                                    boolean assertUpdatesPerSecond) {
         for (int i = 0; i < entityCount; i++) {
             ecsWorld.createEntity(EntityIndex.E1.getId());
         }
-        
-        // 预热
-        for (int i = 0; i < 10; i++) {
-            ecsWorld.update(i * 33);
-        }
-        
-        // 性能测试 - 连续更新
+        measureAndAssert(scenario, entityCount, iterations, maxAvgMs, assertUpdatesPerSecond);
+    }
+
+    private void measureAndAssert(String scenario,
+                                  int entityCount,
+                                  int iterations,
+                                  double maxAvgMs,
+                                  boolean assertUpdatesPerSecond) {
+        int warmup = EcsPerformanceTestSupport.warmupWorldForEntities(ecsWorld, entityCount);
+
         long startTime = System.nanoTime();
-        for (int i = 0; i < totalUpdates; i++) {
-            ecsWorld.update((i + 10) * 33);
+        for (int i = 0; i < iterations; i++) {
+            ecsWorld.update((i + warmup) * 33L);
         }
         long endTime = System.nanoTime();
-        
+
         double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / totalUpdates;
-        double updatesPerSecond = 1000.0 / avgTimeMs;
-        
-        log.info("系统更新频率性能测试 ({}个实体, {}次更新): 总耗时 {} ms, 平均每次 {} ms, 理论每秒更新次数 {}", 
-                entityCount, totalUpdates, totalTimeMs, avgTimeMs, updatesPerSecond);
-        
-        assertTrue(avgTimeMs < 5.0, "System update time should be less than 5ms");
-        assertTrue(updatesPerSecond > 100, "Theoretical update frequency should be greater than 100 times/second");
+        double avgTimeMs = totalTimeMs / iterations;
+        double updatesPerSecond = avgTimeMs <= 0 ? Double.POSITIVE_INFINITY : 1000.0 / avgTimeMs;
+
+        log.info("SystemUpdate 基准 [{}] ({}个实体, 预热{}次, 计时{}次): 总耗时 {} ms, 平均每次 {} ms, 理论每秒更新 {}",
+                scenario, entityCount, warmup, iterations, totalTimeMs, avgTimeMs, updatesPerSecond);
+
+        assertTrue(avgTimeMs < maxAvgMs,
+                scenario + " avg time should be less than " + maxAvgMs + "ms, was " + avgTimeMs);
+        if (assertUpdatesPerSecond) {
+            assertTrue(updatesPerSecond > 100,
+                    "Theoretical update frequency should be greater than 100 times/second");
+        }
     }
 }

@@ -28,3 +28,6 @@ target/
 logs/
 *.iml
 .cursor
+
+# 本地规划/文档（不入库）
+docs/

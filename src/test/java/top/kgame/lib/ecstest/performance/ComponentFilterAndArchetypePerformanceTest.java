@@ -2,6 +2,7 @@ package top.kgame.lib.ecstest.performance;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import top.kgame.lib.ecs.EcsComponent;
@@ -10,11 +11,11 @@ import top.kgame.lib.ecs.EcsWorld;
 import top.kgame.lib.ecs.core.ComponentFilter;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
 import top.kgame.lib.ecs.core.EntityArchetype;
-import top.kgame.lib.ecstest.util.component.Component1;
-import top.kgame.lib.ecstest.util.component.Component2;
-import top.kgame.lib.ecstest.util.component.Component3;
-import top.kgame.lib.ecstest.util.component.Component4;
-import top.kgame.lib.ecstest.util.entity.EntityIndex;
+import top.kgame.lib.ecstest.logic.util.component.Component1;
+import top.kgame.lib.ecstest.logic.util.component.Component2;
+import top.kgame.lib.ecstest.logic.util.component.Component3;
+import top.kgame.lib.ecstest.logic.util.component.Component4;
+import top.kgame.lib.ecstest.logic.util.entity.EntityIndex;
 
 import java.util.*;
 
@@ -29,9 +30,16 @@ public class ComponentFilterAndArchetypePerformanceTest {
     private EcsWorld ecsWorld;
     private List<EntityArchetype> archetypes;
 
+    @AfterEach
+    void tearDown() {
+        if (ecsWorld != null && !ecsWorld.isClosed()) {
+            ecsWorld.close();
+        }
+    }
+
     @BeforeEach
     void setUp() {
-        ecsWorld = EcsWorld.generateInstance("top.kgame.lib.ecstest.util");
+        ecsWorld = EcsWorld.generateInstance("top.kgame.lib.ecstest.logic.util");
         
         // 创建多个不同的Archetype - 通过创建实体来生成Archetype
         archetypes = new ArrayList<>();
@@ -66,10 +74,9 @@ public class ComponentFilterAndArchetypePerformanceTest {
             ComponentFilterParam.require(Component2.class)
         );
         
-        // 预热
-        for (int i = 0; i < 1000; i++) {
-            ComponentFilter.generate(ecsWorld, params);
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> ComponentFilter.generate(ecsWorld, params));
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -101,10 +108,9 @@ public class ComponentFilterAndArchetypePerformanceTest {
         
         EntityArchetype targetArchetype = archetypes.get(1); // Component1 + Component2
         
-        // 预热
-        for (int i = 0; i < 10000; i++) {
-            filter.isMatchingArchetype(targetArchetype);
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> filter.isMatchingArchetype(targetArchetype));
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -135,12 +141,13 @@ public class ComponentFilterAndArchetypePerformanceTest {
             ComponentFilterParam.require(Component2.class)
         ));
         
-        // 预热
-        for (int i = 0; i < 1000; i++) {
-            for (EntityArchetype archetype : archetypes) {
-                filter.isMatchingArchetype(archetype);
-            }
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> {
+                    for (EntityArchetype archetype : archetypes) {
+                        filter.isMatchingArchetype(archetype);
+                    }
+                });
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -175,12 +182,13 @@ public class ComponentFilterAndArchetypePerformanceTest {
             ComponentFilterParam.exclude(Component4.class)
         ));
         
-        // 预热
-        for (int i = 0; i < 1000; i++) {
-            for (EntityArchetype archetype : archetypes) {
-                complexFilter.isMatchingArchetype(archetype);
-            }
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> {
+                    for (EntityArchetype archetype : archetypes) {
+                        complexFilter.isMatchingArchetype(archetype);
+                    }
+                });
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -243,12 +251,13 @@ public class ComponentFilterAndArchetypePerformanceTest {
             ComponentFilterParam.require(Component2.class)
         ));
         
-        // 预热
-        for (int i = 0; i < 10; i++) {
-            for (EntityArchetype archetype : largeArchetypes) {
-                filter.isMatchingArchetype(archetype);
-            }
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> {
+                    for (EntityArchetype archetype : largeArchetypes) {
+                        filter.isMatchingArchetype(archetype);
+                    }
+                });
         
         // 性能测试
         long startTime = System.nanoTime();

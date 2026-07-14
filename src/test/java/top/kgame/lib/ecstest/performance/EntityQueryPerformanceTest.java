@@ -2,6 +2,7 @@ package top.kgame.lib.ecstest.performance;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import top.kgame.lib.ecs.EcsEntity;
@@ -9,10 +10,10 @@ import top.kgame.lib.ecs.EcsWorld;
 import top.kgame.lib.ecs.core.ComponentFilter;
 import top.kgame.lib.ecs.core.ComponentFilterParam;
 import top.kgame.lib.ecs.core.EntityQuery;
-import top.kgame.lib.ecstest.util.component.Component1;
-import top.kgame.lib.ecstest.util.component.Component2;
-import top.kgame.lib.ecstest.util.component.Component3;
-import top.kgame.lib.ecstest.util.entity.EntityIndex;
+import top.kgame.lib.ecstest.logic.util.component.Component1;
+import top.kgame.lib.ecstest.logic.util.component.Component2;
+import top.kgame.lib.ecstest.logic.util.component.Component3;
+import top.kgame.lib.ecstest.logic.util.entity.EntityIndex;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -31,10 +32,17 @@ public class EntityQueryPerformanceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        ecsWorld = EcsWorld.generateInstance("top.kgame.lib.ecstest.util");
+        ecsWorld = EcsWorld.generateInstance("top.kgame.lib.ecstest.logic.util");
         // 使用反射访问包级私有方法
         findOrCreateEntityQueryMethod = EcsWorld.class.getDeclaredMethod("findOrCreateEntityQuery", ComponentFilter.class);
         findOrCreateEntityQueryMethod.setAccessible(true);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (ecsWorld != null && !ecsWorld.isClosed()) {
+            ecsWorld.close();
+        }
     }
 
     /**
@@ -60,10 +68,9 @@ public class EntityQueryPerformanceTest {
             ComponentFilterParam.require(Component2.class)
         ));
         
-        // 预热
-        for (int i = 0; i < 1000; i++) {
-            findOrCreateEntityQuery(filter);
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> findOrCreateEntityQuery(filter));
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -101,10 +108,9 @@ public class EntityQueryPerformanceTest {
         
         EntityQuery query = findOrCreateEntityQuery(filter);
         
-        // 预热
-        for (int i = 0; i < 100; i++) {
-            query.getEntityList();
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                query::getEntityList);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -142,10 +148,9 @@ public class EntityQueryPerformanceTest {
         
         EntityQuery query = findOrCreateEntityQuery(filter);
         
-        // 预热
-        for (int i = 0; i < 10; i++) {
-            query.getEntityList();
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                query::getEntityList);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -183,10 +188,9 @@ public class EntityQueryPerformanceTest {
         
         EntityQuery query = findOrCreateEntityQuery(filter);
         
-        // 预热
-        for (int i = 0; i < 5; i++) {
-            query.getEntityList();
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                query::getEntityList);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -224,10 +228,9 @@ public class EntityQueryPerformanceTest {
         
         EntityQuery query = findOrCreateEntityQuery(filter);
         
-        // 预热
-        for (int i = 0; i < 10; i++) {
-            query.getComponentDataList(Component1.class);
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                () -> query.getComponentDataList(Component1.class));
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -269,10 +272,9 @@ public class EntityQueryPerformanceTest {
         
         EntityQuery query = findOrCreateEntityQuery(filter);
         
-        // 预热
-        for (int i = 0; i < 1000; i++) {
-            query.entityCount();
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                query::entityCount);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -314,10 +316,9 @@ public class EntityQueryPerformanceTest {
         
         EntityQuery query = findOrCreateEntityQuery(filter);
         
-        // 预热
-        for (int i = 0; i < 1000; i++) {
-            query.isEmpty();
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                query::isEmpty);
         
         // 性能测试
         long startTime = System.nanoTime();
@@ -367,10 +368,9 @@ public class EntityQueryPerformanceTest {
         
         EntityQuery query = findOrCreateEntityQuery(complexFilter);
         
-        // 预热
-        for (int i = 0; i < 10; i++) {
-            query.getEntityList();
-        }
+        EcsPerformanceTestSupport.warmupCallable(
+                EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
+                query::getEntityList);
         
         // 性能测试
         long startTime = System.nanoTime();
