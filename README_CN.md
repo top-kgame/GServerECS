@@ -382,6 +382,7 @@ src/
 │   ├── EcsSystem.java      # 系统基类
 │   ├── EcsSystemGroup.java # 系统组基类
 │   └── EcsWorld.java       # ECS世界
+├── jmh/java/top/kgame/lib/ecsjmh/  # JMH 核心基准（-Pjmh，不进默认 mvn test）
 └── test/java/top/kgame/lib/ecstest/
     ├── component/          # 组件测试
     │   ├── add/            # 组件添加测试
@@ -396,10 +397,35 @@ src/
     ├── schedule/           # 系统调度测试
     ├── system/             # 系统测试
     ├── core/               # 核心功能测试
-    ├── performance/        # 性能测试
+    ├── performance/        # JUnit 压测（-Pperf，不进默认 mvn test）
     ├── dispose/            # 资源清理测试
     └── util/               # 测试工具类
 ```
+
+## ⏱ JMH 核心性能基准
+
+以下为 `EcsWorld.update` 热路径的 JMH 参考结果（AverageTime，越低越好）。数值随机器与负载波动，仅作量级参考；改代码后的对比请用脚本同机 before/after。
+
+**环境**: JDK 21.0.6 · JMH 1.37 · Forks=3 · Warmup 3×1s · Measurement 5×1s · Windows
+
+| 基准 | 实体数 | Score ± Error | 单位 |
+|---|---:|---:|---|
+| `WorldUpdateBenchmark.update` | 1,000 | 37.154 ± 1.018 | us/op |
+| `WorldUpdateBenchmark.update` | 10,000 | 410.430 ± 3.563 | us/op |
+| `ParallelWorldUpdateBenchmark.update` | 2,000 | 206.805 ± 16.509 | us/op |
+| `ParallelWorldUpdateBenchmark.update` | 8,000 | 870.761 ± 97.554 | us/op |
+
+**复现**:
+
+```bash
+# 仅核心 JMH（不进入默认 mvn test）
+mvn -Pjmh test-compile exec:exec
+
+# 或经脚本（可打标签 / 对比）
+python scripts/run_performance_tests.py --profile core --label local
+```
+
+全量 JUnit 压测套件（广覆盖，噪声门槛更高）见 `scripts/run_performance_tests.py --profile full`。默认 `mvn test` 不跑、也不编译压测与 JMH（二者仅在 `-Pperf` / `-Pjmh` 下引入）。
 
 ## 📋 后续开发计划
 

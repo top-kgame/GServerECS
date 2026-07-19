@@ -378,6 +378,7 @@ src/
 │   ├── EcsSystem.java      # System base class
 │   ├── EcsSystemGroup.java # System group base class
 │   └── EcsWorld.java       # ECS world
+├── jmh/java/top/kgame/lib/ecsjmh/  # JMH core benchmarks (-Pjmh; not in default mvn test)
 └── test/java/top/kgame/lib/ecstest/
     ├── component/          # Component tests
     │   ├── add/            # Component addition tests
@@ -392,10 +393,35 @@ src/
     ├── schedule/           # System scheduling tests
     ├── system/             # System tests
     ├── core/               # Core functionality tests
-    ├── performance/        # Performance tests
+    ├── performance/        # JUnit perf suite (-Pperf; not in default mvn test)
     ├── dispose/            # Resource cleanup tests
     └── util/               # Test utility classes
 ```
+
+## ⏱ JMH Core Benchmarks
+
+Reference JMH numbers for the `EcsWorld.update` hot path (AverageTime; lower is better). Results vary by machine and load — use them as an order-of-magnitude guide. For change impact, compare before/after on the same machine via the script.
+
+**Environment**: JDK 21.0.6 · JMH 1.37 · Forks=3 · Warmup 3×1s · Measurement 5×1s · Windows
+
+| Benchmark | Entities | Score ± Error | Unit |
+|---|---:|---:|---|
+| `WorldUpdateBenchmark.update` | 1,000 | 37.154 ± 1.018 | us/op |
+| `WorldUpdateBenchmark.update` | 10,000 | 410.430 ± 3.563 | us/op |
+| `ParallelWorldUpdateBenchmark.update` | 2,000 | 206.805 ± 16.509 | us/op |
+| `ParallelWorldUpdateBenchmark.update` | 8,000 | 870.761 ± 97.554 | us/op |
+
+**Reproduce**:
+
+```bash
+# Core JMH only (not part of default mvn test)
+mvn -Pjmh test-compile exec:exec
+
+# Or via the script (labels / diffs)
+python scripts/run_performance_tests.py --profile core --label local
+```
+
+For the broader JUnit performance suite, see `scripts/run_performance_tests.py --profile full`. Default `mvn test` neither runs nor compiles performance tests / JMH (enabled only via `-Pperf` / `-Pjmh`).
 
 ## 📋 Subsequent Development Plan
 

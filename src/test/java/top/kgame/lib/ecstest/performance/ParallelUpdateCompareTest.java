@@ -31,7 +31,7 @@ public class ParallelUpdateCompareTest {
     @Test
     void testSimpleLogicParallelVsSerial() {
         int entityCount = 4000;
-        int iterations = 80;
+        int iterations = 120;
         double maxAvgMs = 100.0;
 
         MeasureResult parallel = measure(
@@ -58,7 +58,7 @@ public class ParallelUpdateCompareTest {
     @Test
     void testComplexLogicParallelVsSerial() {
         int entityCount = 2000;
-        int iterations = 40;
+        int iterations = 80;
         double maxAvgMs = 500.0;
 
         MeasureResult parallel = measure(
@@ -99,16 +99,23 @@ public class ParallelUpdateCompareTest {
 
             int warmup = EcsPerformanceTestSupport.warmupWorldForEntities(world, entityCount);
 
-            long startTime = System.nanoTime();
-            for (int i = 0; i < iterations; i++) {
-                world.update((i + warmup) * 33L);
+            int measurementBatches = 5;
+            double[] batchAvgTimesMs = new double[measurementBatches];
+            for (int batch = 0; batch < measurementBatches; batch++) {
+                long startTime = System.nanoTime();
+                for (int i = 0; i < iterations; i++) {
+                    int frame = warmup + batch * iterations + i;
+                    world.update(frame * 33L);
+                }
+                long elapsedNs = System.nanoTime() - startTime;
+                batchAvgTimesMs[batch] = elapsedNs / 1_000_000.0 / iterations;
             }
-            long endTime = System.nanoTime();
 
-            double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-            double avgTimeMs = totalTimeMs / iterations;
-            log.info("{} 测量结果 ({}个实体, 预热{}次, 计时{}次迭代): 总耗时 {} ms, 平均每次 {} ms",
-                    label, entityCount, warmup, iterations, totalTimeMs, avgTimeMs);
+            double avgTimeMs = EcsPerformanceTestSupport.median(batchAvgTimesMs);
+            double totalTimeMs = avgTimeMs * iterations;
+            log.info("{} 测量结果 ({}个实体, 预热{}次, 计时{}次迭代): 总耗时 {} ms, 平均每次 {} ms ({}批中位数)",
+                    label, entityCount, warmup, iterations, totalTimeMs, avgTimeMs,
+                    measurementBatches);
             return new MeasureResult(totalTimeMs, avgTimeMs);
         } finally {
             if (!world.isClosed()) {
@@ -123,7 +130,8 @@ public class ParallelUpdateCompareTest {
                                MeasureResult parallel,
                                MeasureResult serial) {
         double speedup = serial.avgTimeMs / parallel.avgTimeMs;
-        log.info("{} 对照 ({}个实体, {}次迭代): 串行平均 {} ms, 并行平均 {} ms, 加速比 {}",
+        // 加速比为两路测量之商，抖动会被放大；对比脚本按「仅参考」处理，不计入显著变好/变差
+        log.info("{} 对照 ({}个实体, {}次迭代): 串行平均 {} ms, 并行平均 {} ms, 加速比(参考) {}",
                 scenario, entityCount, iterations, serial.avgTimeMs, parallel.avgTimeMs, speedup);
     }
 

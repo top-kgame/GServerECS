@@ -43,7 +43,8 @@ public class SystemUpdatePerformanceTest {
 
     @Test
     void testSystemUpdatePerformanceWithLargeEntityCount() {
-        runUpdateBenchmark("大量实体", 10000, 10, 500.0, false);
+        // 计次过少时单次 GC/调度毛刺会把平均值拉飞，提高到 80 次降低同代码复跑抖动
+        runUpdateBenchmark("大量实体", 10000, 80, 500.0, false);
     }
 
     @Test
@@ -85,18 +86,24 @@ public class SystemUpdatePerformanceTest {
                                   boolean assertUpdatesPerSecond) {
         int warmup = EcsPerformanceTestSupport.warmupWorldForEntities(ecsWorld, entityCount);
 
-        long startTime = System.nanoTime();
-        for (int i = 0; i < iterations; i++) {
-            ecsWorld.update((i + warmup) * 33L);
+        int measurementBatches = 5;
+        double[] batchAvgTimesMs = new double[measurementBatches];
+        for (int batch = 0; batch < measurementBatches; batch++) {
+            long startTime = System.nanoTime();
+            for (int i = 0; i < iterations; i++) {
+                int frame = warmup + batch * iterations + i;
+                ecsWorld.update(frame * 33L);
+            }
+            batchAvgTimesMs[batch] = (System.nanoTime() - startTime) / 1_000_000.0 / iterations;
         }
-        long endTime = System.nanoTime();
 
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / iterations;
+        double avgTimeMs = EcsPerformanceTestSupport.median(batchAvgTimesMs);
+        double totalTimeMs = avgTimeMs * iterations;
         double updatesPerSecond = avgTimeMs <= 0 ? Double.POSITIVE_INFINITY : 1000.0 / avgTimeMs;
 
-        log.info("SystemUpdate 基准 [{}] ({}个实体, 预热{}次, 计时{}次): 总耗时 {} ms, 平均每次 {} ms, 理论每秒更新 {}",
-                scenario, entityCount, warmup, iterations, totalTimeMs, avgTimeMs, updatesPerSecond);
+        log.info("SystemUpdate 基准 [{}] ({}个实体, 预热{}次, 计时{}次): 总耗时 {} ms, 平均每次 {} ms ({}批中位数), 理论每秒更新 {}",
+                scenario, entityCount, warmup, iterations, totalTimeMs, avgTimeMs,
+                measurementBatches, updatesPerSecond);
 
         assertTrue(avgTimeMs < maxAvgMs,
                 scenario + " avg time should be less than " + maxAvgMs + "ms, was " + avgTimeMs);

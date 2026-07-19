@@ -52,6 +52,14 @@
         <java.version>21</java.version>
         <log4j.version>2.25.3</log4j.version>
         <central-publishing.version>0.11.0</central-publishing.version>
+        <jmh.version>1.37</jmh.version>
+        <surefire.version>3.2.5</surefire.version>
+        <jmh.benchmarks>top.kgame.lib.ecsjmh</jmh.benchmarks>
+        <jmh.fork>3</jmh.fork>
+        <jmh.warmupIterations>3</jmh.warmupIterations>
+        <jmh.warmup>1s</jmh.warmup>
+        <jmh.measurementIterations>5</jmh.measurementIterations>
+        <jmh.measurementTime>1s</jmh.measurementTime>
     </properties>
 
     <!-- 依赖管理 -->
@@ -119,6 +127,17 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+            <!-- 默认不跑压测 / JMH；逻辑测试走正常 surefire -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/ecstest/performance/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -130,6 +149,112 @@
     </distributionManagement>
 
     <profiles>
+        <!-- 手动/脚本触发：运行 JUnit 性能套件 -->
+        <profile>
+            <id>perf</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.version}</version>
+                        <configuration>
+                            <excludes combine.self="override"/>
+                            <includes>
+                                <include>**/ecstest/performance/**/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- 手动/脚本触发：编译并运行 JMH 核心基准（不经过 surefire；默认 test 不引入） -->
+        <profile>
+            <id>jmh</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openjdk.jmh</groupId>
+                    <artifactId>jmh-core</artifactId>
+                    <version>${jmh.version}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.openjdk.jmh</groupId>
+                    <artifactId>jmh-generator-annprocess</artifactId>
+                    <version>${jmh.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>add-jmh-test-source</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>add-test-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/jmh/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.openjdk.jmh</groupId>
+                                    <artifactId>jmh-generator-annprocess</artifactId>
+                                    <version>${jmh.version}</version>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <configuration>
+                            <!-- 使用独立 java 进程 + 完整 classpath，否则 JMH fork 找不到 ForkedMain -->
+                            <executable>java</executable>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>org.openjdk.jmh.Main</argument>
+                                <argument>${jmh.benchmarks}</argument>
+                                <argument>-f</argument>
+                                <argument>${jmh.fork}</argument>
+                                <argument>-wi</argument>
+                                <argument>${jmh.warmupIterations}</argument>
+                                <argument>-w</argument>
+                                <argument>${jmh.warmup}</argument>
+                                <argument>-i</argument>
+                                <argument>${jmh.measurementIterations}</argument>
+                                <argument>-r</argument>
+                                <argument>${jmh.measurementTime}</argument>
+                                <argument>-t</argument>
+                                <argument>1</argument>
+                                <argument>-rf</argument>
+                                <argument>json</argument>
+                                <argument>-rff</argument>
+                                <argument>${project.build.directory}/jmh-result.json</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>release</id>
             <build>

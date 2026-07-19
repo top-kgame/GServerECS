@@ -60,7 +60,7 @@ public class MultiArchetypeQueryPerformanceTest {
         ));
         EntityQuery query = findOrCreateEntityQuery(filter);
 
-        int iterations = 2000;
+        int iterations = 5000;
         EcsPerformanceTestSupport.warmupCallable(
                 EcsPerformanceTestSupport.microBenchmarkWarmupIterations(),
                 query::getEntityList);

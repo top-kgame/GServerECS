@@ -74,7 +74,7 @@ public class ParallelUpdateBenchmarkTest {
     @Test
     void testSimpleLogicBenchmarkWithLargeEntityCount() {
         runBenchmark("简单逻辑-大规模", SHARED_PACKAGE, SIMPLE_BENCH_PACKAGE,
-                SimplePerfEntityFactory.class, 8000, 30, 300.0);
+                SimplePerfEntityFactory.class, 8000, 50, 300.0);
     }
 
     // ---------- 复杂逻辑：不同实体规模 ----------
@@ -88,7 +88,7 @@ public class ParallelUpdateBenchmarkTest {
     @Test
     void testComplexLogicBenchmarkWithLargeEntityCount() {
         runBenchmark("复杂逻辑-大规模", SHARED_PACKAGE, COMPLEX_BENCH_PACKAGE,
-                ComplexPerfEntityFactory.class, 4000, 20, 500.0);
+                ComplexPerfEntityFactory.class, 4000, 60, 500.0);
     }
 
     // ---------- 多个 @ParallelUpdate 系统（系统间串行） ----------
@@ -121,20 +121,27 @@ public class ParallelUpdateBenchmarkTest {
 
         int warmup = EcsPerformanceTestSupport.warmupWorldForEntities(ecsWorld, entityCount);
 
-        long startTime = System.nanoTime();
-        for (int i = 0; i < iterations; i++) {
-            ecsWorld.update((i + warmup) * 33L);
+        int measurementBatches = 5;
+        double[] batchAvgTimesMs = new double[measurementBatches];
+        for (int batch = 0; batch < measurementBatches; batch++) {
+            long startTime = System.nanoTime();
+            for (int i = 0; i < iterations; i++) {
+                int frame = warmup + batch * iterations + i;
+                ecsWorld.update(frame * 33L);
+            }
+            long elapsedNs = System.nanoTime() - startTime;
+            batchAvgTimesMs[batch] = elapsedNs / 1_000_000.0 / iterations;
         }
-        long endTime = System.nanoTime();
 
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / iterations;
+        double avgTimeMs = EcsPerformanceTestSupport.median(batchAvgTimesMs);
+        double totalTimeMs = avgTimeMs * iterations;
         double entitiesPerSecond = avgTimeMs <= 0
                 ? Double.POSITIVE_INFINITY
                 : entityCount * 1000.0 / avgTimeMs;
 
-        log.info("ParallelUpdate 基准 [{}] ({}个实体, 预热{}次, 计时{}次迭代): 总耗时 {} ms, 平均每次 {} ms, 吞吐约 {} 实体/秒",
-                scenario, entityCount, warmup, iterations, totalTimeMs, avgTimeMs, entitiesPerSecond);
+        log.info("ParallelUpdate 基准 [{}] ({}个实体, 预热{}次, 计时{}次迭代): 总耗时 {} ms, 平均每次 {} ms ({}批中位数), 吞吐约 {} 实体/秒",
+                scenario, entityCount, warmup, iterations, totalTimeMs, avgTimeMs,
+                measurementBatches, entitiesPerSecond);
 
         assertTrue(avgTimeMs < maxAvgMs,
                 scenario + " avg time should be less than " + maxAvgMs + "ms, was " + avgTimeMs);

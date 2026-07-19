@@ -2,6 +2,8 @@ package top.kgame.lib.ecstest.performance;
 
 import top.kgame.lib.ecs.EcsWorld;
 
+import java.util.Arrays;
+
 /**
  * ECS 性能测试共用预热逻辑，尽量降低 JIT 冷启动对计时窗口的影响。
  */
@@ -59,5 +61,21 @@ final class EcsPerformanceTestSupport {
      */
     static int microBenchmarkWarmupIterations() {
         return MIN_WARMUP_ITERATIONS;
+    }
+
+    /**
+     * 返回样本中位数；用于降低单次 GC、线程调度毛刺对短基准的影响。
+     */
+    static double median(double[] samples) {
+        if (samples.length == 0) {
+            throw new IllegalArgumentException("samples must not be empty");
+        }
+        double[] sorted = Arrays.copyOf(samples, samples.length);
+        Arrays.sort(sorted);
+        int middle = sorted.length / 2;
+        if ((sorted.length & 1) == 1) {
+            return sorted[middle];
+        }
+        return (sorted[middle - 1] + sorted[middle]) / 2.0;
     }
 }

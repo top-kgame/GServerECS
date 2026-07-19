@@ -49,17 +49,22 @@ public class TickRatePerformanceTest {
 
         int warmup = EcsPerformanceTestSupport.warmupWorldForEntities(ecsWorld, entityCount);
 
-        long startTime = System.nanoTime();
-        for (int i = 0; i < iterations; i++) {
-            ecsWorld.update((i + warmup) * 33L);
+        int measurementBatches = 5;
+        double[] batchAvgTimesMs = new double[measurementBatches];
+        for (int batch = 0; batch < measurementBatches; batch++) {
+            long startTime = System.nanoTime();
+            for (int i = 0; i < iterations; i++) {
+                int frame = warmup + batch * iterations + i;
+                ecsWorld.update(frame * 33L);
+            }
+            batchAvgTimesMs[batch] = (System.nanoTime() - startTime) / 1_000_000.0 / iterations;
         }
-        long endTime = System.nanoTime();
 
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgTimeMs = totalTimeMs / iterations;
+        double avgTimeMs = EcsPerformanceTestSupport.median(batchAvgTimesMs);
+        double totalTimeMs = avgTimeMs * iterations;
 
-        log.info("TickRate 混合系统基准 ({}实体, 预热{}次, 计时{}次): 总耗时 {} ms, 平均每次 {} ms",
-                entityCount, warmup, iterations, totalTimeMs, avgTimeMs);
+        log.info("TickRate 混合系统基准 ({}实体, 预热{}次, 计时{}次): 总耗时 {} ms, 平均每次 {} ms ({}批中位数)",
+                entityCount, warmup, iterations, totalTimeMs, avgTimeMs, measurementBatches);
 
         assertTrue(avgTimeMs < maxAvgMs,
                 "Mixed TickRate update avg should be < " + maxAvgMs + "ms, was " + avgTimeMs);

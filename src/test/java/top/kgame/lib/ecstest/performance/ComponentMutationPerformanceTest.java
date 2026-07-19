@@ -62,6 +62,7 @@ public class ComponentMutationPerformanceTest {
     @Test
     void testBatchEntityComponentMigration() {
         int entityCount = 4000;
+        int rounds = 40;
         EcsEntity[] entities = new EcsEntity[entityCount];
         for (int i = 0; i < entityCount; i++) {
             entities[i] = ecsWorld.createEntity(MutationEntityFactory.class);
@@ -76,23 +77,28 @@ public class ComponentMutationPerformanceTest {
             }
         });
 
-        long startTime = System.nanoTime();
-        for (EcsEntity entity : entities) {
-            entity.addComponent(new ComponentMutationTag());
+        double[] roundTimesMs = new double[rounds];
+        double totalTimeMs = 0.0;
+        for (int r = 0; r < rounds; r++) {
+            long startTime = System.nanoTime();
+            for (EcsEntity entity : entities) {
+                entity.addComponent(new ComponentMutationTag());
+            }
+            for (EcsEntity entity : entities) {
+                entity.removeComponent(ComponentMutationTag.class);
+            }
+            roundTimesMs[r] = (System.nanoTime() - startTime) / 1_000_000.0;
+            totalTimeMs += roundTimesMs[r];
         }
-        for (EcsEntity entity : entities) {
-            entity.removeComponent(ComponentMutationTag.class);
-        }
-        long endTime = System.nanoTime();
 
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double migrationsPerSecond = entityCount * 2.0 * 1000.0 / totalTimeMs;
+        double avgRoundMs = EcsPerformanceTestSupport.median(roundTimesMs);
+        double migrationsPerSecond = entityCount * 2.0 * rounds * 1000.0 / totalTimeMs;
 
-        log.info("批量实体组件迁移基准 ({}实体 add+remove): 总耗时 {} ms, 吞吐约 {} 次迁移/秒",
-                entityCount, totalTimeMs, migrationsPerSecond);
+        log.info("批量实体组件迁移基准 ({}实体 add+remove, {}轮): 总耗时 {} ms, 平均每轮 {} ms (中位数), 吞吐约 {} 次迁移/秒",
+                entityCount, rounds, totalTimeMs, avgRoundMs, migrationsPerSecond);
 
-        assertTrue(totalTimeMs < 200.0,
-                "Batch migration total should be < 200ms, was " + totalTimeMs);
+        assertTrue(avgRoundMs < 200.0,
+                "Batch migration round avg should be < 200ms, was " + avgRoundMs);
     }
 
     @Test

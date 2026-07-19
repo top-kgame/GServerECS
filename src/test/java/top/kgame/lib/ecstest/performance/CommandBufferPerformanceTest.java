@@ -46,25 +46,33 @@ public class CommandBufferPerformanceTest {
     @Test
     void testBatchCreateCommandFlush() {
         int batchSize = 4000;
-        int rounds = 30;
+        int rounds = 80;
         warmupCreateDestroyCommands(Math.min(batchSize, 500));
 
-        long startTime = System.nanoTime();
+        double[] roundTimesMs = new double[rounds];
+        double totalTimeMs = 0.0;
         for (int r = 0; r < rounds; r++) {
+            List<EcsEntity> created = new ArrayList<>(batchSize);
+            long startTime = System.nanoTime();
             for (int i = 0; i < batchSize; i++) {
                 ecsWorld.addDelayCommand(new EcsCommandCreateEntity(
-                        ecsWorld, LifecycleEntityFactory.TYPE_ID, entity -> {
-                        }));
+                        ecsWorld, LifecycleEntityFactory.TYPE_ID, created::add));
+            }
+            tick();
+            roundTimesMs[r] = (System.nanoTime() - startTime) / 1_000_000.0;
+            totalTimeMs += roundTimesMs[r];
+
+            // 清理放在计时区外，避免 World 实体数逐轮增长并引入越来越大的 GC 压力。
+            for (EcsEntity entity : created) {
+                ecsWorld.addDelayCommand(new EcsCommandDestroyEntity(ecsWorld, entity));
             }
             tick();
         }
-        long endTime = System.nanoTime();
 
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double avgRoundMs = totalTimeMs / rounds;
+        double avgRoundMs = EcsPerformanceTestSupport.median(roundTimesMs);
         double createsPerSecond = batchSize * (double) rounds * 1000.0 / totalTimeMs;
 
-        log.info("CommandBuffer create 基准 (每轮{}条, {}轮): 总耗时 {} ms, 平均每轮 {} ms, 吞吐约 {} cmd/秒",
+        log.info("CommandBuffer create 基准 (每轮{}条, {}轮): 总耗时 {} ms, 平均每轮 {} ms (中位数), 吞吐约 {} cmd/秒",
                 batchSize, rounds, totalTimeMs, avgRoundMs, createsPerSecond);
 
         assertTrue(avgRoundMs < 150.0,
@@ -74,33 +82,40 @@ public class CommandBufferPerformanceTest {
     @Test
     void testBatchDestroyCommandFlush() {
         int batchSize = 4000;
+        int rounds = 40;
         warmupCreateDestroyCommands(Math.min(batchSize, 500));
 
-        List<EcsEntity> entities = new ArrayList<>(batchSize);
-        for (int i = 0; i < batchSize; i++) {
-            entities.add(ecsWorld.createEntity(LifecycleEntityFactory.class));
+        double[] roundTimesMs = new double[rounds];
+        double totalTimeMs = 0.0;
+        for (int r = 0; r < rounds; r++) {
+            List<EcsEntity> entities = new ArrayList<>(batchSize);
+            for (int i = 0; i < batchSize; i++) {
+                entities.add(ecsWorld.createEntity(LifecycleEntityFactory.class));
+            }
+
+            long startTime = System.nanoTime();
+            for (EcsEntity entity : entities) {
+                ecsWorld.addDelayCommand(new EcsCommandDestroyEntity(ecsWorld, entity));
+            }
+            tick();
+            roundTimesMs[r] = (System.nanoTime() - startTime) / 1_000_000.0;
+            totalTimeMs += roundTimesMs[r];
         }
 
-        long startTime = System.nanoTime();
-        for (EcsEntity entity : entities) {
-            ecsWorld.addDelayCommand(new EcsCommandDestroyEntity(ecsWorld, entity));
-        }
-        tick();
-        long endTime = System.nanoTime();
+        double avgRoundMs = EcsPerformanceTestSupport.median(roundTimesMs);
+        double destroysPerSecond = batchSize * (double) rounds * 1000.0 / totalTimeMs;
 
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double destroysPerSecond = batchSize * 1000.0 / totalTimeMs;
+        log.info("CommandBuffer destroy 基准 (每轮{}条+update, {}轮): 总耗时 {} ms, 平均每轮 {} ms (中位数), 吞吐约 {} cmd/秒",
+                batchSize, rounds, totalTimeMs, avgRoundMs, destroysPerSecond);
 
-        log.info("CommandBuffer destroy 基准 ({}条+update): 总耗时 {} ms, 吞吐约 {} cmd/秒",
-                batchSize, totalTimeMs, destroysPerSecond);
-
-        assertTrue(totalTimeMs < 200.0,
-                "Destroy command flush should be < 200ms, was " + totalTimeMs);
+        assertTrue(avgRoundMs < 200.0,
+                "Destroy command round avg should be < 200ms, was " + avgRoundMs);
     }
 
     @Test
     void testBatchAddRemoveComponentCommandFlush() {
         int entityCount = 3000;
+        int rounds = 40;
         List<EcsEntity> entities = new ArrayList<>(entityCount);
         for (int i = 0; i < entityCount; i++) {
             entities.add(ecsWorld.createEntity(LifecycleEntityFactory.class));
@@ -119,25 +134,30 @@ public class CommandBufferPerformanceTest {
         }
         System.gc();
 
-        long startTime = System.nanoTime();
-        for (EcsEntity entity : entities) {
-            ecsWorld.addDelayCommand(new EcsCommandAddComponent(entity, new ComponentMutationTag()));
+        double[] roundTimesMs = new double[rounds];
+        double totalTimeMs = 0.0;
+        for (int r = 0; r < rounds; r++) {
+            long startTime = System.nanoTime();
+            for (EcsEntity entity : entities) {
+                ecsWorld.addDelayCommand(new EcsCommandAddComponent(entity, new ComponentMutationTag()));
+            }
+            tick();
+            for (EcsEntity entity : entities) {
+                ecsWorld.addDelayCommand(new EcsCommandRemoveComponent(entity, ComponentMutationTag.class));
+            }
+            tick();
+            roundTimesMs[r] = (System.nanoTime() - startTime) / 1_000_000.0;
+            totalTimeMs += roundTimesMs[r];
         }
-        tick();
-        for (EcsEntity entity : entities) {
-            ecsWorld.addDelayCommand(new EcsCommandRemoveComponent(entity, ComponentMutationTag.class));
-        }
-        tick();
-        long endTime = System.nanoTime();
 
-        double totalTimeMs = (endTime - startTime) / 1_000_000.0;
-        double cmdsPerSecond = entityCount * 2.0 * 1000.0 / totalTimeMs;
+        double avgRoundMs = EcsPerformanceTestSupport.median(roundTimesMs);
+        double cmdsPerSecond = entityCount * 2.0 * rounds * 1000.0 / totalTimeMs;
 
-        log.info("CommandBuffer add/remove component 基准 ({}实体×2命令+flush): 总耗时 {} ms, 吞吐约 {} cmd/秒",
-                entityCount, totalTimeMs, cmdsPerSecond);
+        log.info("CommandBuffer add/remove component 基准 ({}实体×2命令+flush, {}轮): 总耗时 {} ms, 平均每轮 {} ms (中位数), 吞吐约 {} cmd/秒",
+                entityCount, rounds, totalTimeMs, avgRoundMs, cmdsPerSecond);
 
-        assertTrue(totalTimeMs < 200.0,
-                "Add/remove component commands should be < 200ms, was " + totalTimeMs);
+        assertTrue(avgRoundMs < 200.0,
+                "Add/remove component round avg should be < 200ms, was " + avgRoundMs);
     }
 
     @Test
