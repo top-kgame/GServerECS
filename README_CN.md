@@ -364,42 +364,47 @@ src/
 │   │   ├── ComponentFilter.java      # 组件过滤器
 │   │   ├── ComponentFilterMode.java # 过滤模式
 │   │   ├── ComponentFilterParam.java # 过滤参数
+│   │   ├── EcsCleanable.java         # 可清理资源接口
 │   │   ├── EcsComponentManager.java  # 组件管理器
 │   │   ├── EcsEntityManager.java     # 实体管理器
 │   │   ├── EcsSystemManager.java     # 系统管理器
 │   │   ├── EntityArchetype.java      # 实体原型
 │   │   ├── EntityFactory.java        # 实体工厂接口
 │   │   ├── EntityQuery.java          # 实体查询
+│   │   ├── ParallelUpdateExecutor.java # 系统内实体并行更新执行器
 │   │   └── SystemScheduler.java      # 系统调度器
 │   ├── exception/          # 异常定义
 │   ├── extensions/         # 扩展功能
-│   │   ├── component/      # 扩展组件
-│   │   ├── entity/         # 扩展实体工厂
-│   │   └── system/         # 扩展系统基类
-│   ├── tools/              # 工具类
+│   │   ├── component/      # 扩展组件（Initialized / Destroying）
+│   │   ├── entity/         # 扩展实体工厂（BaseEntityFactory）
+│   │   └── system/         # 扩展系统基类（N-Component / Init / Destroy 等）
+│   ├── tools/              # 工具类（扫描、排序、ClassUtils 等）
 │   ├── EcsComponent.java   # 组件接口
 │   ├── EcsEntity.java      # 实体类
 │   ├── EcsSystem.java      # 系统基类
 │   ├── EcsSystemGroup.java # 系统组基类
+│   ├── EcsEntityUpdateSystem.java    # 逻辑系统基类（实体查询与过滤）
+│   ├── EcsStandaloneUpdateSystem.java # 单例更新系统基类
 │   └── EcsWorld.java       # ECS世界
 ├── jmh/java/top/kgame/lib/ecsjmh/  # JMH 核心基准（-Pjmh，不进默认 mvn test）
 └── test/java/top/kgame/lib/ecstest/
-    ├── component/          # 组件测试
-    │   ├── add/            # 组件添加测试
-    │   │   ├── immediately/ # 立即添加
-    │   │   └── delay/       # 延迟添加
-    │   └── remove/         # 组件移除测试
-    │       ├── immediately/ # 立即移除
-    │       └── delay/       # 延迟移除
-    ├── entity/             # 实体测试
-    │   ├── add/            # 实体添加测试
-    │   └── remove/         # 实体移除测试
-    ├── schedule/           # 系统调度测试
-    ├── system/             # 系统测试
-    ├── core/               # 核心功能测试
-    ├── performance/        # JUnit 压测（-Pperf，不进默认 mvn test）
-    ├── dispose/            # 资源清理测试
-    └── util/               # 测试工具类
+    ├── logic/              # 功能与行为测试（默认 mvn test）
+    │   ├── common/         # 通用工具测试
+    │   ├── component/      # 组件测试
+    │   │   ├── add/        # 组件添加（immediately / delay）
+    │   │   └── remove/     # 组件移除（immediately / delay）
+    │   ├── entity/         # 实体测试
+    │   │   ├── add/        # 实体添加（immediately / delay）
+    │   │   └── remove/     # 实体移除（immediately / delay）
+    │   ├── schedule/       # 系统调度与系统类型测试
+    │   ├── system/         # 系统顺序与间隔测试
+    │   ├── systemgroup/    # 系统组测试
+    │   ├── core/           # 核心功能测试
+    │   ├── dispose/        # 资源清理测试
+    │   ├── isolated/       # 隔离场景（如非法 ParallelUpdate）
+    │   └── util/           # 测试工具类
+    └── performance/        # JUnit 压测（-Pperf，不进默认 mvn test）
+        └── isolated/       # 隔离压测场景（archetype / lifecycle / mutation / parallelupdate / tickrate）
 ```
 
 ## ⏱ JMH 核心性能基准

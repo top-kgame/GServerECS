@@ -360,42 +360,47 @@ src/
 │   │   ├── ComponentFilter.java      # Component filter
 │   │   ├── ComponentFilterMode.java # Filter mode
 │   │   ├── ComponentFilterParam.java # Filter parameter
+│   │   ├── EcsCleanable.java         # Cleanable resource interface
 │   │   ├── EcsComponentManager.java  # Component manager
 │   │   ├── EcsEntityManager.java     # Entity manager
 │   │   ├── EcsSystemManager.java     # System manager
 │   │   ├── EntityArchetype.java      # Entity archetype
 │   │   ├── EntityFactory.java        # Entity factory interface
 │   │   ├── EntityQuery.java          # Entity query
+│   │   ├── ParallelUpdateExecutor.java # Per-entity parallel update executor
 │   │   └── SystemScheduler.java      # System scheduler
 │   ├── exception/          # Exception definitions
 │   ├── extensions/         # Extension functionality
-│   │   ├── component/      # Extension components
-│   │   ├── entity/         # Extension entity factories
-│   │   └── system/         # Extension system base classes
-│   ├── tools/              # Utility classes
+│   │   ├── component/      # Extension components (Initialized / Destroying)
+│   │   ├── entity/         # Extension entity factories (BaseEntityFactory)
+│   │   └── system/         # Extension system base classes (N-Component / Init / Destroy, etc.)
+│   ├── tools/              # Utility classes (scanning, sorting, ClassUtils, etc.)
 │   ├── EcsComponent.java   # Component interface
 │   ├── EcsEntity.java      # Entity class
 │   ├── EcsSystem.java      # System base class
 │   ├── EcsSystemGroup.java # System group base class
+│   ├── EcsEntityUpdateSystem.java    # Logic system base (entity query & filter)
+│   ├── EcsStandaloneUpdateSystem.java # Singleton update system base
 │   └── EcsWorld.java       # ECS world
 ├── jmh/java/top/kgame/lib/ecsjmh/  # JMH core benchmarks (-Pjmh; not in default mvn test)
 └── test/java/top/kgame/lib/ecstest/
-    ├── component/          # Component tests
-    │   ├── add/            # Component addition tests
-    │   │   ├── immediately/ # Immediate addition
-    │   │   └── delay/       # Deferred addition
-    │   └── remove/         # Component removal tests
-    │       ├── immediately/ # Immediate removal
-    │       └── delay/       # Deferred removal
-    ├── entity/             # Entity tests
-    │   ├── add/            # Entity addition tests
-    │   └── remove/         # Entity removal tests
-    ├── schedule/           # System scheduling tests
-    ├── system/             # System tests
-    ├── core/               # Core functionality tests
-    ├── performance/        # JUnit perf suite (-Pperf; not in default mvn test)
-    ├── dispose/            # Resource cleanup tests
-    └── util/               # Test utility classes
+    ├── logic/              # Functional / behavioral tests (default mvn test)
+    │   ├── common/         # Shared utility tests
+    │   ├── component/      # Component tests
+    │   │   ├── add/        # Component add (immediately / delay)
+    │   │   └── remove/     # Component remove (immediately / delay)
+    │   ├── entity/         # Entity tests
+    │   │   ├── add/        # Entity add (immediately / delay)
+    │   │   └── remove/     # Entity remove (immediately / delay)
+    │   ├── schedule/       # System scheduling & system-type tests
+    │   ├── system/         # System order & interval tests
+    │   ├── systemgroup/    # System group tests
+    │   ├── core/           # Core functionality tests
+    │   ├── dispose/        # Resource cleanup tests
+    │   ├── isolated/       # Isolated scenarios (e.g. invalid ParallelUpdate)
+    │   └── util/           # Test utilities
+    └── performance/        # JUnit perf suite (-Pperf; not in default mvn test)
+        └── isolated/       # Isolated perf scenarios (archetype / lifecycle / mutation / parallelupdate / tickrate)
 ```
 
 ## ⏱ JMH Core Benchmarks
