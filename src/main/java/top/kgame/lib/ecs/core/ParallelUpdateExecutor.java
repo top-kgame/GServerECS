@@ -2,72 +2,75 @@ package top.kgame.lib.ecs.core;
 
 import top.kgame.lib.ecs.EcsEntity;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
-public class ParallelUpdateExecutor implements EcsCleanable {
-    private final ExecutorService executor;
+/**
+ * 系统内实体并行更新执行器抽象基类。
+ * <p>
+ * 不负责具体分片与线程调度；子类自行实现 {@link #forEach(List, Consumer, int)}。
+ * 实例通常由 {@link ParallelUpdateExecutorManager} 创建。
+ */
+public abstract class ParallelUpdateExecutor {
+    private final ParallelUpdateExecutorManager executorManager;
 
-    public ParallelUpdateExecutor() {
-        this(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+    protected ParallelUpdateExecutor(ParallelUpdateExecutorManager manager) {
+        if (manager == null) {
+            throw new IllegalArgumentException("manager must not be null");
+        }
+        this.executorManager = manager;
     }
 
-    public ParallelUpdateExecutor(int parallelism) {
-        if (parallelism <= 1) {
-            throw new IllegalArgumentException("ParallelUpdateExecutor parallelism must be greater than 1");
-        }
-        AtomicInteger threadIndex = new AtomicInteger();
-        this.executor = Executors.newFixedThreadPool(parallelism, r -> {
-            Thread thread = new Thread(r, "ecs-parallel-update-" + threadIndex.getAndIncrement());
-            thread.setDaemon(true);
-            return thread;
-        });
+    protected final ParallelUpdateExecutorManager getExecutorManager() {
+        return executorManager;
     }
 
-    public void forEach(List<EcsEntity> entities, Consumer<EcsEntity> action) {
-        if (entities.isEmpty()) {
-            return;
-        }
+    protected int resolveTaskCount(int entityCount, int minEntitiesPerBatch) {
+        int byGrain = Math.max(1, entityCount / minEntitiesPerBatch);
+        return Math.min(getExecutorManager().getParallelism(), byGrain);
+    }
 
-        if (entities.size() == 1) {
-            action.accept(entities.getFirst());
-            return;
-        }
-
-        CountDownLatch latch = new CountDownLatch(entities.size());
-        AtomicReference<Throwable> error = new AtomicReference<>();
-        for (EcsEntity entity : entities) {
+    /** 池线程处理前 {@code taskCount - 1} 个任务，调用线程处理最后一个；*/
+    protected void runParallel(int taskCount, IntConsumer task) {
+        final AtomicInteger remaining = new AtomicInteger(taskCount - 1);
+        final AtomicReference<Throwable> error = new AtomicReference<>();
+        final ExecutorService executor = getExecutorManager().getExecutor();
+        for (int taskIndex = 0; taskIndex < taskCount - 1; taskIndex++) {
+            final int workerIndex = taskIndex;
             executor.execute(() -> {
                 try {
-                    action.accept(entity);
+                    task.accept(workerIndex);
                 } catch (Throwable t) {
                     error.compareAndSet(null, t);
                 } finally {
-                    latch.countDown();
+                    remaining.decrementAndGet();
                 }
             });
         }
+        //避免当前线程空转
         try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("ParallelUpdateExecutor interrupted while waiting for tasks", e);
+            task.accept(taskCount - 1);
+        } catch (Throwable t) {
+            error.compareAndSet(null, t);
+        }
+
+        while (remaining.get() > 0) {
+            Thread.onSpinWait();
         }
         Throwable throwable = error.get();
         if (throwable != null) {
-            throw new RuntimeException("ParallelUpdateExecutor task failed", throwable);
+            throw new RuntimeException(getClass().getSimpleName() + " task failed", throwable);
         }
     }
 
-    @Override
-    public void clean() {
-        executor.shutdown();
-    }
+    /**
+     * 由子类实现：实体分片与线程调度均可自定义。
+     */
+    public abstract void forEach(List<EcsEntity> entities,
+                                    Consumer<EcsEntity> action,
+                                    int minEntitiesPerBatch);
 }

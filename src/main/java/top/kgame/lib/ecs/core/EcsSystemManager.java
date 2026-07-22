@@ -15,7 +15,6 @@ public class EcsSystemManager implements EcsCleanable {
     private static final Logger logger = LogManager.getLogger(EcsSystemManager.class);
 
     private final EcsWorld world;
-    private final ParallelUpdateExecutor parallelUpdateExecutor = new ParallelUpdateExecutor();
     private final SystemScheduler topLevelSystemScheduler = new SystemScheduler();
     private final Set<Class<? extends EcsSystem>> topSystemClasses = new HashSet<>();
     private final Map<Class<? extends EcsSystemGroup>, Set<Class<? extends EcsSystem>>> groupChildMap = new HashMap<>();
@@ -57,14 +56,9 @@ public class EcsSystemManager implements EcsCleanable {
         return world;
     }
 
-    public ParallelUpdateExecutor getParallelUpdateExecutor() {
-        return parallelUpdateExecutor;
-    }
-
     @Override
     public void clean() {
         topLevelSystemScheduler.clean();
-        parallelUpdateExecutor.clean();
     }
 
     public void update() {

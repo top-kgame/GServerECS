@@ -209,14 +209,18 @@ GServerECS provides rich annotations to control system behavior:
 #### @ParallelUpdate
 - **Purpose**: Marks that entity updates within a logic system may be executed in parallel across multiple threads
 - **Target**: `EcsEntityUpdateSystem` and its subclasses (such as the various `EcsXxxComponentUpdateSystem`). Applying it to non-`EcsEntityUpdateSystem` types such as `EcsSystemGroup` or `EcsStandaloneUpdateSystem` causes the framework to throw `InvalidParallelUpdateAnnotationException` during scanning.
-- **Parameters**: None
+- **Parameters**:
+  - `Class<? extends ParallelUpdateExecutor> executor()`: parallel executor type, default `RangeParallelUpdateExecutor` (contiguous slices). A built-in `StrideParallelUpdateExecutor` (interleaved indices) is also provided. Custom executors need a public constructor `(ParallelUpdateExecutorManager)`, or must be pre-registered via `ParallelUpdateExecutorManager#register(Class, instance)`.
+  - `int minEntityCountPerBatch()`: minimum entities per batch, must be `> 0` (default 256); otherwise the system throws during initialization. Caps task count so simple logic is not dominated by scheduling overhead.
 - **Description**: For a system marked with this annotation, matching entities are iterated and processed in parallel across multiple threads within a single update; systems themselves still execute **serially** in their original order, only the per-entity processing inside a system runs in parallel. The following constraints must be met:
   - The system's update logic must be **thread-safe**, since multiple entities are processed on different threads concurrently.
   - Do **not** modify entity structure directly during parallel processing (e.g. `entity.addComponent`, `entity.removeComponent`, `world.requestDestroyEntity`). Use deferred commands (`addDelayCommand`) instead. Command enqueueing is thread-safe, and the commands are executed serially on a single thread after the parallel iteration completes.
   - Avoid reading/writing cross-entity shared mutable state directly in update, unless you guarantee thread safety yourself.
 
 ```java
-@ParallelUpdate
+@ParallelUpdate // default RangeParallelUpdateExecutor (contiguous slices)
+// @ParallelUpdate(executor = StrideParallelUpdateExecutor.class, minEntityCountPerBatch = 128)
+// @ParallelUpdate(executor = MyHashParallelUpdateExecutor.class)
 public class MovementSystem extends EcsOneComponentUpdateSystem<PositionComponent> {
     @Override
     protected void update(EcsEntity entity, PositionComponent position) {
@@ -367,12 +371,14 @@ src/
 │   │   ├── EntityArchetype.java      # Entity archetype
 │   │   ├── EntityFactory.java        # Entity factory interface
 │   │   ├── EntityQuery.java          # Entity query
-│   │   ├── ParallelUpdateExecutor.java # Per-entity parallel update executor
+│   │   ├── ParallelUpdateExecutor.java # Abstract parallel update executor
+│   │   ├── ParallelUpdateExecutorManager.java # Creates and caches executors by Class
 │   │   └── SystemScheduler.java      # System scheduler
 │   ├── exception/          # Exception definitions
 │   ├── extensions/         # Extension functionality
 │   │   ├── component/      # Extension components (Initialized / Destroying)
 │   │   ├── entity/         # Extension entity factories (BaseEntityFactory)
+│   │   ├── parallel/       # Built-in parallel executors (Range contiguous / Stride interleaved)
 │   │   └── system/         # Extension system base classes (N-Component / Init / Destroy, etc.)
 │   ├── tools/              # Utility classes (scanning, sorting, ClassUtils, etc.)
 │   ├── EcsComponent.java   # Component interface

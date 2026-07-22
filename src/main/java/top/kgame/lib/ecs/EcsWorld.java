@@ -15,19 +15,20 @@ import java.util.Collection;
  */
 public class EcsWorld{
     private static final Logger logger = LogManager.getLogger(EcsWorld.class);
-    private static final int INIT_LOGIC_TIME = -1;
 
+    private static final int INIT_LOGIC_TIME = -1;
     private State state = State.INIT;
     private long currentTime = INIT_LOGIC_TIME;
 
     private final EcsEntityManager entityManager = new EcsEntityManager(this);
-    private EcsEntity[] waitDestroyEntity = new EcsEntity[16];
-    private int waitDestroyEntitySize = 0;
+    private final EcsSystemManager systemManager = new EcsSystemManager(this);
+    private final EcsCommandBuffer commandBuffer = new EcsCommandBuffer();
     private EcsSystemGroup currentSystemGroup;
 
-    private final EcsSystemManager systemManager = new EcsSystemManager(this);
+    private EcsEntity[] waitDestroyEntity = new EcsEntity[16];
+    private int waitDestroyEntitySize = 0;
 
-    private final EcsCommandBuffer commandBuffer = new EcsCommandBuffer();
+    private final ParallelUpdateExecutorManager parallelUpdateExecutorManager = new ParallelUpdateExecutorManager();
 
     private Object context;
 
@@ -146,6 +147,7 @@ public class EcsWorld{
         systemManager.clean();
         entityManager.clean();
         commandBuffer.clear();
+        parallelUpdateExecutorManager.clean();
         state = State.DESTROYED;
     }
 
@@ -232,5 +234,9 @@ public class EcsWorld{
 
     public long getCurrentTime() {
         return currentTime;
+    }
+
+    public ParallelUpdateExecutorManager getParallelUpdateExecutorManager() {
+        return parallelUpdateExecutorManager;
     }
 }

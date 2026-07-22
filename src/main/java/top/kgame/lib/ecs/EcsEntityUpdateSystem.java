@@ -1,9 +1,8 @@
 package top.kgame.lib.ecs;
 
 import top.kgame.lib.ecs.annotation.ParallelUpdate;
-import top.kgame.lib.ecs.core.ComponentFilter;
-import top.kgame.lib.ecs.core.ComponentFilterParam;
-import top.kgame.lib.ecs.core.EntityQuery;
+import top.kgame.lib.ecs.core.*;
+import top.kgame.lib.ecs.tools.ClassUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +13,8 @@ import java.util.function.Consumer;
 public abstract class EcsEntityUpdateSystem extends EcsSystem {
     private final List<ComponentFilterParam<?>> extraMatchComponent = new ArrayList<>();
     private boolean parallelUpdate = false;
+    private Class<? extends ParallelUpdateExecutor> parallelExecutorClass = ParallelUpdateExecutor.class;
+    private int parallelMinEntitiesPerBatch = 0;
     private EntityQuery entityQuery;
 
     @Override
@@ -21,6 +22,18 @@ public abstract class EcsEntityUpdateSystem extends EcsSystem {
         ParallelUpdate parallelUpdateAnno = this.getClass().getAnnotation(ParallelUpdate.class);
         if (parallelUpdateAnno != null) {
             parallelUpdate = true;
+            parallelExecutorClass = parallelUpdateAnno.executor();
+            if (ClassUtils.isAbstract(parallelExecutorClass)) {
+                throw new IllegalArgumentException(
+                        "ParallelUpdate's executor is abstract class or interface class, system="
+                                + getClass().getName());
+            }
+            parallelMinEntitiesPerBatch = parallelUpdateAnno.minEntityCountPerBatch();
+            if (parallelMinEntitiesPerBatch <= 0) {
+                throw new IllegalArgumentException(
+                        "ParallelUpdate's minEntityCountPerBatch must be greater than 0, system="
+                                + getClass().getName());
+            }
         }
 
         processExtraComponent();
@@ -44,7 +57,8 @@ public abstract class EcsEntityUpdateSystem extends EcsSystem {
         Consumer<EcsEntity> action = createUpdateAction();
         List<EcsEntity> entities = getAllMatchEntity();
         if (parallelUpdate) {
-            ecsSystemManager.getParallelUpdateExecutor().forEach(entities, action);
+            ParallelUpdateExecutorManager factory = getWorld().getParallelUpdateExecutorManager();
+            factory.getInstance(parallelExecutorClass).forEach(entities, action, parallelMinEntitiesPerBatch);
         } else {
             for (EcsEntity entity : entities) {
                 action.accept(entity);

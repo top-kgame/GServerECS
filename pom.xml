@@ -7,7 +7,7 @@
     <!-- 基础信息 -->
     <groupId>top.kgame</groupId>
     <artifactId>kgame-lib-ecs</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>GServerECS</name>

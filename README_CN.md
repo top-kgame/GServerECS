@@ -210,14 +210,18 @@ GServerECS提供了丰富的注解来控制系统的行为：
 #### @ParallelUpdate
 - **作用**: 标记逻辑系统内对匹配实体的更新可以多线程并行执行
 - **可作用对象**: `EcsEntityUpdateSystem`及其子类（如各`EcsXxxComponentUpdateSystem`）。用于`EcsSystemGroup`、`EcsStandaloneUpdateSystem`等非`EcsEntityUpdateSystem`类型时，框架在扫描阶段会抛出`InvalidParallelUpdateAnnotationException`。
-- **参数**: 无
+- **参数**:
+  - `Class<? extends ParallelUpdateExecutor> executor()`：并行执行器类型，默认`RangeParallelUpdateExecutor`（连续区间分片）。内置另有`StrideParallelUpdateExecutor`（交错分片）。自定义执行器须有 public 构造`(ParallelUpdateExecutorManager)`，或事先通过`ParallelUpdateExecutorManager#register(Class, instance)`注册实例。
+  - `int minEntityCountPerBatch()`：每批最少实体数，必须`> 0`（默认 256），否则系统初始化时抛出异常。用于限制并行任务数，避免简单逻辑被调度开销淹没。
 - **说明**: 被此注解标记的系统，在单次update中会以多线程方式并行遍历并处理匹配的实体；系统之间仍按原有顺序**串行**执行，仅系统内部的实体处理并行。使用时必须满足以下约束：
   - 系统的update逻辑必须**线程安全**，多个实体会在不同线程上同时处理。
   - 并行处理期间**不得直接修改实体结构**（如`entity.addComponent`、`entity.removeComponent`、`world.requestDestroyEntity`等）；如需修改，必须通过延迟命令（`addDelayCommand`）执行。延迟命令的入队是线程安全的，命令会在并行遍历结束后由单线程统一执行。
   - 避免在update中直接读写跨实体的共享可变状态，除非自行保证线程安全。
 
 ```java
-@ParallelUpdate
+@ParallelUpdate // 默认 RangeParallelUpdateExecutor（连续区间）
+// @ParallelUpdate(executor = StrideParallelUpdateExecutor.class, minEntityCountPerBatch = 128)
+// @ParallelUpdate(executor = MyHashParallelUpdateExecutor.class)
 public class MovementSystem extends EcsOneComponentUpdateSystem<PositionComponent> {
     @Override
     protected void update(EcsEntity entity, PositionComponent position) {
@@ -371,12 +375,14 @@ src/
 │   │   ├── EntityArchetype.java      # 实体原型
 │   │   ├── EntityFactory.java        # 实体工厂接口
 │   │   ├── EntityQuery.java          # 实体查询
-│   │   ├── ParallelUpdateExecutor.java # 系统内实体并行更新执行器
+│   │   ├── ParallelUpdateExecutor.java # 并行更新执行器抽象基类
+│   │   ├── ParallelUpdateExecutorManager.java # 按执行器 Class 创建并缓存实例
 │   │   └── SystemScheduler.java      # 系统调度器
 │   ├── exception/          # 异常定义
 │   ├── extensions/         # 扩展功能
 │   │   ├── component/      # 扩展组件（Initialized / Destroying）
 │   │   ├── entity/         # 扩展实体工厂（BaseEntityFactory）
+│   │   ├── parallel/       # 内置并行执行器（Range 连续区间 / Stride 交错分片）
 │   │   └── system/         # 扩展系统基类（N-Component / Init / Destroy 等）
 │   ├── tools/              # 工具类（扫描、排序、ClassUtils 等）
 │   ├── EcsComponent.java   # 组件接口
